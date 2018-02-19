@@ -5,7 +5,7 @@ export default class Paddle {
     Object.assign(this, params);
     
     this.position = {
-      x: this.canvas.width / 2,
+      x: this.canvas.width / 2 - this.gameSettings.brickWidth / 2,
       y: this.canvas.height - this.gameSettings.brickHeight - 5
     };
     this.width = this.gameSettings.brickWidth;
