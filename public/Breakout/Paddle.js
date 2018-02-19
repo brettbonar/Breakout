@@ -8,7 +8,7 @@ export default class Paddle {
       x: this.canvas.width / 2 - this.gameSettings.brickWidth / 2,
       y: this.canvas.height - this.gameSettings.brickHeight - 5
     };
-    this.width = this.gameSettings.brickWidth;
+    this.width = this.gameSettings.brickWidth * 2;
     this.height = this.gameSettings.brickHeight;
     this.color = _.sample(this.gameSettings.brickColors);
   }

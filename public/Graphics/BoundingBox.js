@@ -4,7 +4,13 @@ export default class BoundingBox {
       this.constructFromCircle(params);
     } else if (params.position && !_.isUndefined(params.width) && !_.isUndefined(params.height)) {
       this.constructFromRectangle(params);
+    } else if (params.line) {
+      this.constructFromLine(params);
     }
+  }
+
+  constructFromLine(params) {
+    this.lines = [params.line];
   }
 
   constructFromCircle(params) {
@@ -34,8 +40,8 @@ export default class BoundingBox {
 
     this.lines = {
       top: [this.box.ul, this.box.ur],
-      right: [this.box.ur, this.box.lr],
       bottom: [this.box.lr, this.box.ll],
+      right: [this.box.ur, this.box.lr],
       left: [this.box.ll, this.box.ul]
     };
   }

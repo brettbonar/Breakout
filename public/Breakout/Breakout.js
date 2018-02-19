@@ -21,7 +21,9 @@ export default class Breakout {
       brickColors: ["lawnGreen", "aqua", "orange", "yellow"],
       brickLineWidth: 2,
       brickShadowBlur: 15,
-      ballSpeed: 0.5,
+      ballSpeed: 0.25,
+      ballSpeedIncrease: 0.15,
+      ballSpeedIntervals: [4, 12, 36, 62],
       ballSize: 6,
       comboThreshold: 300,
       // Value by row
@@ -42,7 +44,10 @@ export default class Breakout {
       balls: [],
       scores: [],
       combo: 0,
-      score: 0
+      score: 0,
+      countdown: 3000,
+      bricksDestroyed: 0,
+      brokeThrough: false
     };
     this.initialize({
       rows: params.rows,
@@ -102,6 +107,18 @@ export default class Breakout {
       score.render(this.context);
     }
 
+    if (this.gameState.countdown > 0) {
+      Graphics.Text.draw(this.context, {
+        fillStyle: "magenta",
+        font: "120px Trebuchet MS",
+        text: Math.ceil(this.gameState.countdown / 1000).toFixed(),
+        position: {
+          x: this.canvas.width / 2,
+          y: this.canvas.height / 2
+        }
+      });
+    }
+
     this.context.restore();
   }
 
@@ -113,6 +130,20 @@ export default class Breakout {
       // Make sure text doesn't render out of bounds
       this.gameState.score += result.brick.value;
       this.gameState.combo += result.brick.value;
+      this.gameState.bricksDestroyed += 1;
+
+      // TODO: make this better
+      if (result.brick.row === 0 && !this.gameState.brokeThrough) {
+        this.gameState.brokeThrough = true;
+        this.gameState.paddle.width /= 2;
+      }
+
+      if (this.gameSettings.ballSpeedIntervals.includes(this.gameState.bricksDestroyed)) {
+        for (const ball of this.gameState.balls) {
+          ball.speed += this.gameSettings.ballSpeedIncrease;
+        }
+      }
+
       // let start = {
       //   x: Math.min(Math.max(ball.position.x, 10), this.canvas.width - 10),
       //   y: ball.position.y
@@ -148,6 +179,11 @@ export default class Breakout {
   }
 
   update(elapsedTime) {
+    if (this.gameState.countdown > 0) {
+      this.gameState.countdown -= elapsedTime;
+      return; // no need to do anything else
+    }
+
     this.gameState.scores = this.gameState.scores.filter((score) => !score.done);
     for (const score of this.gameState.scores) {
       score.update(elapsedTime);
@@ -205,6 +241,8 @@ export default class Breakout {
   start() {
     this.previousTime = performance.now();
     requestAnimationFrame((currentTime) => this.gameLoop(currentTime));
+
+    // TODO: don't do these until countdown is over?
     document.addEventListener("keydown", (event) => this.handleKeyEvent(event));
     this.canvas.addEventListener("mousemove", (event) => this.handleMouseMove(event));
   }

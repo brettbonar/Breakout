@@ -13,8 +13,8 @@ export default class Brick {
 
     this.box = new BoundingBox({
       position: this.position,
-      width: this.width,
-      height: this.height
+      width: this.width + this.gameSettings.brickLineWidth,
+      height: this.height + this.gameSettings.brickLineWidth
     });
 
     this.pieces = [];
