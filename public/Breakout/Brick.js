@@ -13,8 +13,8 @@ export default class Brick {
 
     this.box = new BoundingBox({
       position: this.position,
-      width: this.width + this.gameSettings.brickLineWidth / 2,
-      height: this.height + this.gameSettings.brickLineWidth / 2
+      width: this.width,
+      height: this.height
     });
 
     this.pieces = [];
@@ -33,44 +33,46 @@ export default class Brick {
     this.destroyed = true;
     this.currentTime = 0;
     
-    let x1 = _.random(this.position.x, this.position.x + this.width);
-    let x2 = this.position.x + ((this.position.x + this.width) - x1);
+    //let x1 = _.random(this.position.x, this.position.x + this.width);
+    let x1 = this.position.x + this.width;
+    let x2 = x1;
+    //let x2 = this.position.x + ((this.position.x + this.width) - x1);
     this.pieces = [
       {
         line: [{ x: this.position.x, y: this.position.y + this.height }, { x: x1, y: this.position.y + this.height }],
         direction: { x: -0.5, y: -0.5 },
         rotation: 0,
-        rotate: -1,
+        rotate: _.random(-1, 1),
         speed: 0.05
       }, {
-        line: [{ x: x1, y: this.position.y + this.height }, { x: this.position.x + this.width, y: this.position.y + this.height }],
-        direction: { x: 0.5, y: -0.5 },
-        rotation: 0,
-        rotate: 1,
-        speed: 0.05
-      }, {
+      //   line: [{ x: x1, y: this.position.y + this.height }, { x: this.position.x + this.width, y: this.position.y + this.height }],
+      //   direction: { x: 0.5, y: -0.5 },
+      //   rotation: 0,
+      //   rotate: _.random(-1, 1),
+      //   speed: 0.05
+      // }, {
         line: [{ x: this.position.x, y: this.position.y + this.height }, { x: x2, y: this.position.y + this.height }],
         direction: { x: -0.5, y: 0.5 },
         rotation: 0,
-        rotate: 1,
+        rotate: _.random(-1, 1),
         speed: 0.05
       }, {
-        line: [{ x: x2, y: this.position.y + this.height }, { x: this.position.x + this.width, y: this.position.y + this.height }],
-        direction: { x: 0.5, y: 0.5 },
-        rotation: 0,
-        rotate: -1,
-        speed: 0.05
-      }, {
+      //   line: [{ x: x2, y: this.position.y + this.height }, { x: this.position.x + this.width, y: this.position.y + this.height }],
+      //   direction: { x: 0.5, y: 0.5 },
+      //   rotation: 0,
+      //   rotate: -1,
+      //   speed: 0.05
+      // }, {
         line: [{ x: this.position.x, y: this.position.y }, { x: this.position.x, y: this.position.y + this.height }],
-        direction: { x: -0.5, y: 0 },
+        direction: { x: -0.8, y: 0 },
         rotation: 0,
-        rotate: 1,
+        rotate: _.random(-1, 1),
         speed: 0.05
       }, {
         line: [{ x: this.position.x + this.width, y: this.position.y }, { x: this.position.x + this.width, y: this.position.y + this.height }],
-        direction: { x: 0.5, y: 0 },
+        direction: { x: 0.8, y: 0 },
         rotation: 0,
-        rotate: 1,
+        rotate: _.random(-1, 1),
         speed: 0.05
       }
     ];

@@ -23,16 +23,17 @@ export default class Breakout {
       brickShadowBlur: 15,
       ballSpeed: 0.5,
       ballSize: 6,
+      comboThreshold: 300,
       // Value by row
       brickValues: {
-        0: 5,
-        1: 5,
-        2: 3,
-        3: 3,
-        4: 2,
-        5: 2,
-        6: 1,
-        7: 1
+        0: 50,
+        1: 50,
+        2: 30,
+        3: 30,
+        4: 20,
+        5: 20,
+        6: 10,
+        7: 10
       }
     };
     this.gameState = {
@@ -112,20 +113,20 @@ export default class Breakout {
       // Make sure text doesn't render out of bounds
       this.gameState.score += result.brick.value;
       this.gameState.combo += result.brick.value;
-      let start = {
-        x: Math.min(Math.max(ball.position.x, 10), this.canvas.width - 10),
-        y: ball.position.y
-      };
-      this.gameState.scores.push(new FloatingText({
-        fillStyle: result.brick.color,
-        duration: 1000,
-        text: result.brick.value,
-        start: start,
-        end: { x: start.x, y: start.y - 100 },
-        fade: true
-      }));
+      // let start = {
+      //   x: Math.min(Math.max(ball.position.x, 10), this.canvas.width - 10),
+      //   y: ball.position.y
+      // };
+      // this.gameState.scores.push(new FloatingText({
+      //   fillStyle: result.brick.color,
+      //   duration: 1000,
+      //   text: result.brick.value,
+      //   start: start,
+      //   end: { x: start.x, y: start.y - 100 },
+      //   fade: true
+      // }));
     } else if (result && result.paddle) {
-      if (this.gameState.combo >= 30) {
+      if (this.gameState.combo >= this.gameSettings.comboThreshold) {
         let start = {
           x: this.canvas.width / 2,
           y: this.canvas.height - 150

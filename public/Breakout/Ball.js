@@ -47,6 +47,96 @@ export default class Ball {
     context.restore();
   }
 
+  checkBrickCollision(elapsedTime, bricks, paddle) {
+    // TODO: FIX ALL THIS
+
+    // Handle brick collision
+    let box = this.boundingBox;
+    for (const row of bricks) {
+      for (const brick of row) {
+        let brickBox = brick.boundingBox;
+        if (brick.destroyed) {
+          continue;
+        }
+
+        let intersections = [];
+        
+        if (this.direction.y > 0 && box.intersects(brickBox.lines.top)) {
+          intersections.push({
+            location: "top",
+            distance: Math.abs(this.position.y - brickBox.lines.top[0].y)
+          });
+        } else if (this.direction.y < 0 && box.intersects(brickBox.lines.bottom)) {
+          intersections.push({
+            location: "bottom",
+            distance: Math.abs(this.position.y - brickBox.lines.bottom[0].y)
+          });
+        } else if (this.direction.x > 0 && box.intersects(brickBox.lines.left)) {
+          intersections.push({
+            location: "left",
+            distance: Math.abs(this.position.x - brickBox.lines.left[0].x)
+          });
+        } else if (this.direction.x < 0 && box.intersects(brickBox.lines.right)) {
+          intersections.push({
+            location: "right",
+            distance: Math.abs(this.position.x - brickBox.lines.top[0].right)
+          });
+        }
+
+        // Now get the closest intersection
+        if (intersections.length > 0) {
+          let intersection = _.sortBy(intersections, "distance")[0];
+
+          if (intersection.location === "top") {
+            this.position.y = brickBox.lines.top[0].y - this.radius;
+            brick.destroy({
+              position: this.position,
+              direction: this.direction,
+              speed: this.speed,
+              location: "top"
+            });
+            this.direction.y = -this.direction.y;
+            this.color = brick.color;
+            return { brick: brick };
+          } else if (intersection.location === "bottom") {
+            this.position.y = brickBox.lines.bottom[0].y + this.radius;
+            brick.destroy({
+              position: this.position,
+              direction: this.direction,
+              speed: this.speed,
+              location: "bottom"
+            });
+            this.direction.y = -this.direction.y;
+            this.color = brick.color;
+            return { brick: brick };
+          } else if (intersection.location === "left") {
+            this.position.x = brickBox.lines.left[0].x - this.radius;
+            brick.destroy({
+              position: this.position,
+              direction: this.direction,
+              speed: this.speed,
+              location: "left"
+            });
+            this.direction.x = -this.direction.x;
+            this.color = brick.color;
+            return { brick: brick };
+          } else if (intersection.location === "right") {
+            this.position.x = brickBox.lines.right[0].x + this.radius;
+            brick.destroy({
+              position: this.position,
+              direction: this.direction,
+              speed: this.speed,
+              location: "right"
+            });
+            this.direction.x = -this.direction.x;
+            this.color = brick.color;
+            return { brick: brick };
+          } 
+        }
+      }
+    }
+  }
+
   update(elapsedTime, bricks, paddle) {
     this.position.x += elapsedTime * this.speed * this.direction.x;
     this.position.y += elapsedTime * this.speed * this.direction.y;
@@ -75,7 +165,6 @@ export default class Ball {
       this.position.y = paddle.position.y - paddle.height - 2;
       paddle.color = this.color;
 
-      // TODO: fix this
       this.direction.x = (this.position.x - (paddle.position.x + paddle.width / 2)) / (paddle.width / 2);
       this.normalizeDirection();
 
@@ -84,60 +173,6 @@ export default class Ball {
       return { paddle: paddle };
     }
 
-    // Handle brick collision
-    for (const row of bricks) {
-      for (const brick of row) {
-        let brickBox = brick.boundingBox;
-        if (brick.destroyed) {
-          continue;
-        }
-        
-        if (this.direction.y > 0 && box.intersects(brickBox.lines.top)) {
-          this.position.y = brickBox.lines.top[0].y;
-          brick.destroy({
-            position: this.position,
-            direction: this.direction,
-            speed: this.speed,
-            location: "top"
-          });
-          this.direction.y = -this.direction.y;
-          this.color = brick.color;
-          return { brick: brick };
-        } else if (this.direction.y < 0 && box.intersects(brickBox.lines.bottom)) {
-          this.position.y = brickBox.lines.bottom[0].y;
-          brick.destroy({
-            position: this.position,
-            direction: this.direction,
-            speed: this.speed,
-            location: "bottom"
-          });
-          this.direction.y = -this.direction.y;
-          this.color = brick.color;
-          return { brick: brick };
-        } else if (this.direction.x > 0 && box.intersects(brickBox.lines.left)) {
-          this.position.x = brickBox.lines.left[0].x;
-          brick.destroy({
-            position: this.position,
-            direction: this.direction,
-            speed: this.speed,
-            location: "left"
-          });
-          this.direction.x = -this.direction.x;
-          this.color = brick.color;
-          return { brick: brick };
-        } else if (this.direction.x < 0 && box.intersects(brickBox.lines.right)) {
-          this.position.x = brickBox.lines.right[0].x;
-          brick.destroy({
-            position: this.position,
-            direction: this.direction,
-            speed: this.speed,
-            location: "right"
-          });
-          this.direction.x = -this.direction.x;
-          this.color = brick.color;
-          return { brick: brick };
-        } 
-      }
-    }
+    return this.checkBrickCollision(elapsedTime, bricks, paddle);
   }
 }
