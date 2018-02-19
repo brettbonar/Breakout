@@ -1,0 +1,146 @@
+body {
+  font-family: "Lucinda Console";
+  color: white;
+}
+
+hr {
+  width: 100%;
+}
+
+label {
+  font-size: 24px;
+}
+
+input[type=checkbox] {
+  transform: scale(4);
+  -ms-transform: scale(4);
+  -moz-transform: scale(4);
+  -webkit-transform: scale(4);
+  -o-transform: scale(4);
+  padding: 10px;
+  margin: 30px;
+}
+
+.title {
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 4em;
+  white-space: nowrap;
+  text-shadow: 4px 4px 0 rgba(140, 117, 117, 0.7);
+}
+
+.choose-difficulty {
+  text-align: center;
+}
+
+button.game-back {
+  z-index: 999;
+  padding: 5px 10px;
+  position: relative;
+}
+
+.game-group {
+  position: relative;
+}
+
+.canvas-group {
+  /* display: none; */
+}
+
+.primary-canvas {
+  z-index: -1;
+  cursor: none;
+}
+
+
+.game-canvas {
+  width: calc(100vmin - 50px);
+  height: calc(50vmin - 50px);
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 100;
+}
+
+.controls {
+  margin: auto;
+  width: 50%;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  font-size: 20px;
+}
+
+.high-scores {
+  flex: 1;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+.high-scores-list {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 0;
+  width: 100%;
+}
+
+.high-scores-list tr {
+  text-align: center;
+  font-size: 25px;
+}
+
+.high-scores-list td {
+  text-align: center;
+  font-size: 20px;
+}
+
+.control {
+  font-family: "Lucinda Console";
+  flex: 1;
+  margin: 10px;
+  /* Button style */
+  border: 3px solid #401818;
+  background: #9c3e3e;
+  background: -webkit-gradient(linear, left top, left bottom, from(#d66565), to(#9c3e3e));
+  background: -webkit-linear-gradient(top, #d66565, #9c3e3e);
+  background: -moz-linear-gradient(top, #d66565, #9c3e3e);
+  background: -ms-linear-gradient(top, #d66565, #9c3e3e);
+  background: -o-linear-gradient(top, #d66565, #9c3e3e);
+  background-image: -ms-linear-gradient(top, #d66565 0%, #9c3e3e 100%);
+  padding: 13.5px 27px;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+  border-radius: 1px;
+  -webkit-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+  -moz-box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+  box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
+  text-shadow: #8f3232 0 1px 0;
+  color: #ffffff;
+  font-size: 24px;
+  text-decoration: none;
+  vertical-align: middle;
+  }
+.control:hover {
+  border: 3px solid #401818;
+  text-shadow: #571e1e 0 1px 0;
+  background: #9c3e3e;
+  background: -webkit-gradient(linear, left top, left bottom, from(#d66565), to(#9c3e3e));
+  background: -webkit-linear-gradient(top, #d66565, #9c3e3e);
+  background: -moz-linear-gradient(top, #d66565, #9c3e3e);
+  background: -ms-linear-gradient(top, #d66565, #9c3e3e);
+  background: -o-linear-gradient(top, #d66565, #9c3e3e);
+  background-image: -ms-linear-gradient(top, #d66565 0%, #9c3e3e 100%);
+  color: #fff;
+  }
+.control:active {
+  text-shadow: #571e1e 0 1px 0;
+  border: 3px solid #401818;
+  background: #d66565;
+  background: -webkit-gradient(linear, left top, left bottom, from(#9c3e3e), to(#9c3e3e));
+  background: -webkit-linear-gradient(top, #9c3e3e, #d66565);
+  background: -moz-linear-gradient(top, #9c3e3e, #d66565);
+  background: -ms-linear-gradient(top, #9c3e3e, #d66565);
+  background: -o-linear-gradient(top, #9c3e3e, #d66565);
+  background-image: -ms-linear-gradient(top, #9c3e3e 0%, #d66565 100%);
+  color: #fff;
+  }
