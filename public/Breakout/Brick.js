@@ -26,81 +26,54 @@ export default class Brick {
   }
 
   getPieces(params) {
-    
+
   }
 
   destroy(params) {
     this.destroyed = true;
     this.currentTime = 0;
-
-    if (params.location === "top") {
-      this.pieces = [
-        {
-          line: [{ x: this.position.x, y: this.position.y }, { x: params.position.x, y: this.position.y }],
-          direction: { x: Math.abs(params.direction.x), y: params.direction.y },
-          rotation: 0,
-          speed: 0.05
-        }, {
-          line: [{ x: params.position.x, y: this.position.y }, { x: this.position.x + this.width, y: this.position.y }],
-          direction: { x: -Math.abs(params.direction.x), y: params.direction.y },
-          rotation: 0,
-          speed: 0.05
-        } 
-      ];
-    } else if (params.location === "bottom") {
-      let x2 = this.position.x + ((this.position.x + this.width) - params.position.x);
-      this.pieces = [
-        {
-          line: [{ x: this.position.x, y: this.position.y + this.height }, { x: params.position.x, y: this.position.y + this.height }],
-          direction: { x: -Math.abs(params.direction.x), y: -params.direction.y },
-          rotation: 0,
-          speed: 0.05
-        }, {
-          line: [{ x: params.position.x, y: this.position.y + this.height }, { x: this.position.x + this.width, y: this.position.y + this.height }],
-          direction: { x: Math.abs(params.direction.x), y: -params.direction.y },
-          rotation: 0,
-          speed: 0.05
-        }, {
-          line: [{ x: this.position.x, y: this.position.y + this.height }, { x: x2, y: this.position.y + this.height }],
-          direction: { x: -Math.abs(params.direction.x), y: params.direction.y },
-          rotation: 0,
-          speed: 0.05
-        }, {
-          line: [{ x: x2, y: this.position.y + this.height }, { x: this.position.x + this.width, y: this.position.y + this.height }],
-          direction: { x: Math.abs(params.direction.x), y: params.direction.y },
-          rotation: 0,
-          speed: 0.05
-        }         
-      ];
-    } else if (params.location === "left") {
-      this.pieces = [
-        {
-          line: [{ x: this.position.x, y: this.position.y }, { x: this.position.x, y: params.position.y }],
-          direction: params.direction,
-          rotation: 0,
-          speed: 0.05
-        }, {
-          line: [{ x: this.position.x, y: params.position.y }, { x: this.position.x, y: this.position.y + this.height }],
-          direction: params.direction,
-          rotation: 0,
-          speed: 0.05
-        }
-      ];      
-    } else if (params.location === "right") {
-      this.pieces = [
-        {
-          line: [{ x: this.position.x + this.width, y: this.position.y }, { x: this.position.x + this.width, y: params.position.y }],
-          direction: params.direction,
-          rotation: 0,
-          speed: 0.05
-        }, {
-          line: [{ x: this.position.x + this.width, y: params.position.y }, { x: this.position.x + this.width, y: this.position.y + this.height }],
-          direction: params.direction,
-          rotation: 0,
-          speed: 0.05
-        }
-      ];      
-    }
+    
+    let x1 = _.random(this.position.x, this.position.x + this.width);
+    let x2 = this.position.x + ((this.position.x + this.width) - x1);
+    this.pieces = [
+      {
+        line: [{ x: this.position.x, y: this.position.y + this.height }, { x: x1, y: this.position.y + this.height }],
+        direction: { x: -0.5, y: -0.5 },
+        rotation: 0,
+        rotate: -1,
+        speed: 0.05
+      }, {
+        line: [{ x: x1, y: this.position.y + this.height }, { x: this.position.x + this.width, y: this.position.y + this.height }],
+        direction: { x: 0.5, y: -0.5 },
+        rotation: 0,
+        rotate: 1,
+        speed: 0.05
+      }, {
+        line: [{ x: this.position.x, y: this.position.y + this.height }, { x: x2, y: this.position.y + this.height }],
+        direction: { x: -0.5, y: 0.5 },
+        rotation: 0,
+        rotate: 1,
+        speed: 0.05
+      }, {
+        line: [{ x: x2, y: this.position.y + this.height }, { x: this.position.x + this.width, y: this.position.y + this.height }],
+        direction: { x: 0.5, y: 0.5 },
+        rotation: 0,
+        rotate: -1,
+        speed: 0.05
+      }, {
+        line: [{ x: this.position.x, y: this.position.y }, { x: this.position.x, y: this.position.y + this.height }],
+        direction: { x: -0.5, y: 0 },
+        rotation: 0,
+        rotate: 1,
+        speed: 0.05
+      }, {
+        line: [{ x: this.position.x + this.width, y: this.position.y }, { x: this.position.x + this.width, y: this.position.y + this.height }],
+        direction: { x: 0.5, y: 0 },
+        rotation: 0,
+        rotate: 1,
+        speed: 0.05
+      }
+    ];
   }
 
   update(elapsedTime) {
@@ -108,7 +81,7 @@ export default class Brick {
       this.currentTime += elapsedTime;
 
       for (const piece of this.pieces) {
-        piece.rotation += piece.direction.x > 0 ? elapsedTime / 50 : -elapsedTime / 50;
+        piece.rotation += (elapsedTime / 50) * piece.rotate;
         for (const point of piece.line) {
           point.x += elapsedTime * piece.speed * piece.direction.x;
           point.y += elapsedTime * piece.speed * piece.direction.y;
