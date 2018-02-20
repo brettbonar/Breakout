@@ -88,7 +88,7 @@ export default class Ball {
 
         result.weight = vectors.reduce((prev, vector, index) => {
           // Afford special weight to center vector
-          let weight = index === 0 ? 2 : 1;
+          let weight = index === 0 ? 1.5 : 1;
           return vector.intersects(brickBox.lines[location]) ? prev + weight : prev;
         }, 0);
         
@@ -167,6 +167,18 @@ export default class Ball {
       return { paddle: paddle };
     }
 
+    let brick;
+    let iterator = _.each;
+    if (this.direction.y < 0) {
+      iterator = _.eachRight;
+    }
+    iterator(bricks, (row) => {
+      if (brick) {
+        return false;
+      }
+      brick = this.checkBrickCollision(elapsedTime, row, paddle);
+    });
+    
     // Handle top and side collision
     if (this.position.y < 0) {
       this.position.y = 0;
@@ -183,19 +195,7 @@ export default class Ball {
       this.position.x = this.canvas.width;
       this.direction.x = -this.direction.x;
     }
-
-    let brick;
-    let iterator = _.each;
-    if (this.direction.y < 0) {
-      iterator = _.eachRight;
-    }
-    iterator(bricks, (row) => {
-      if (brick) {
-        return false;
-      }
-      brick = this.checkBrickCollision(elapsedTime, row, paddle);
-    });
-
+    
     return brick;
   }
 }
