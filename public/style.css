@@ -26,7 +26,13 @@ input[type=checkbox] {
   text-transform: uppercase;
   font-size: 4em;
   white-space: nowrap;
-  text-shadow: 4px 4px 0 rgba(140, 117, 117, 0.7);
+  /* text-shadow: 4px 4px 0 rgba(140, 117, 117, 0.7); */
+  text-shadow:
+  -1px -1px 0 magenta,
+  1px -1px 0 magenta,
+  -1px 1px 0 magenta,
+  1px 1px 0 magenta;
+  color: white;
 }
 
 .choose-difficulty {
@@ -43,15 +49,20 @@ button.game-back {
   position: relative;
 }
 
+.demo-canvas {
+  z-index: -1;
+}
+
 .canvas-group {
   /* display: none; */
+  z-index: -1;
 }
 
 .primary-canvas {
   z-index: -1;
   cursor: none;
+  display: none;
 }
-
 
 .game-canvas {
   width: calc(100vmin - 50px);
@@ -59,16 +70,28 @@ button.game-back {
   position: absolute;
   left: 0;
   top: 0;
-  z-index: 100;
+}
+
+.menu {
+  z-index: 9999;
 }
 
 .controls {
   margin: auto;
   width: 50%;
   height: 100%;
-  display: none;
+  display: flex;
   flex-direction: column;
   font-size: 20px;
+}
+
+.sub-menu {
+  display: none;
+}
+
+.pause-menu {
+  top: 150px;
+  position: relative;
 }
 
 .high-scores {
@@ -100,13 +123,13 @@ button.game-back {
   margin: 10px;
   /* Button style */
   border: 3px solid #401818;
-  background: #9c3e3e;
-  background: -webkit-gradient(linear, left top, left bottom, from(#d66565), to(#9c3e3e));
-  background: -webkit-linear-gradient(top, #d66565, #9c3e3e);
-  background: -moz-linear-gradient(top, #d66565, #9c3e3e);
-  background: -ms-linear-gradient(top, #d66565, #9c3e3e);
-  background: -o-linear-gradient(top, #d66565, #9c3e3e);
-  background-image: -ms-linear-gradient(top, #d66565 0%, #9c3e3e 100%);
+  background: #ac43a3;
+  background: -webkit-gradient(linear, left top, left bottom, from(#cc28a3), to(#ac43a3));
+  background: -webkit-linear-gradient(top, #cc28a3, #ac43a3);
+  background: -moz-linear-gradient(top, #cc28a3, #ac43a3);
+  background: -ms-linear-gradient(top, #cc28a3, #ac43a3);
+  background: -o-linear-gradient(top, #cc28a3, #ac43a3);
+  background-image: -ms-linear-gradient(top, #cc28a3 0%, #ac43a3 100%);
   padding: 13.5px 27px;
   -webkit-border-radius: 1px;
   -moz-border-radius: 1px;
@@ -123,24 +146,24 @@ button.game-back {
 .control:hover {
   border: 3px solid #401818;
   text-shadow: #571e1e 0 1px 0;
-  background: #9c3e3e;
-  background: -webkit-gradient(linear, left top, left bottom, from(#d66565), to(#9c3e3e));
-  background: -webkit-linear-gradient(top, #d66565, #9c3e3e);
-  background: -moz-linear-gradient(top, #d66565, #9c3e3e);
-  background: -ms-linear-gradient(top, #d66565, #9c3e3e);
-  background: -o-linear-gradient(top, #d66565, #9c3e3e);
-  background-image: -ms-linear-gradient(top, #d66565 0%, #9c3e3e 100%);
+  background: #ac43a3;
+  background: -webkit-gradient(linear, left top, left bottom, from(#cc28a3), to(#ac43a3));
+  background: -webkit-linear-gradient(top, #cc28a3, #ac43a3);
+  background: -moz-linear-gradient(top, #cc28a3, #ac43a3);
+  background: -ms-linear-gradient(top, #cc28a3, #ac43a3);
+  background: -o-linear-gradient(top, #cc28a3, #ac43a3);
+  background-image: -ms-linear-gradient(top, #cc28a3 0%, #ac43a3 100%);
   color: #fff;
   }
 .control:active {
   text-shadow: #571e1e 0 1px 0;
   border: 3px solid #401818;
-  background: #d66565;
-  background: -webkit-gradient(linear, left top, left bottom, from(#9c3e3e), to(#9c3e3e));
-  background: -webkit-linear-gradient(top, #9c3e3e, #d66565);
-  background: -moz-linear-gradient(top, #9c3e3e, #d66565);
-  background: -ms-linear-gradient(top, #9c3e3e, #d66565);
-  background: -o-linear-gradient(top, #9c3e3e, #d66565);
-  background-image: -ms-linear-gradient(top, #9c3e3e 0%, #d66565 100%);
+  background: #cc28a3;
+  background: -webkit-gradient(linear, left top, left bottom, from(#ac43a3), to(#ac43a3));
+  background: -webkit-linear-gradient(top, #ac43a3, #cc28a3);
+  background: -moz-linear-gradient(top, #ac43a3, #cc28a3);
+  background: -ms-linear-gradient(top, #ac43a3, #cc28a3);
+  background: -o-linear-gradient(top, #ac43a3, #cc28a3);
+  background-image: -ms-linear-gradient(top, #ac43a3 0%, #cc28a3 100%);
   color: #fff;
   }

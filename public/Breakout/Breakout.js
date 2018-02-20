@@ -4,15 +4,18 @@ import Brick from "./Brick.js"
 import Paddle from "./Paddle.js"
 import FloatingText from "../Graphics/FloatingText.js"
 
+const EVENT = {
+  PAUSE: "pause"
+};
+
 export default class Breakout {
   constructor(params) {
-    params = {
-      rows: 8,
-      columns: 14
-    };
+    params.rows = 8;
+    params.columns = 14;
 
-    this.canvas = document.getElementById("canvas-main");
+    this.canvas = params.canvas;
     this.context = this.canvas.getContext("2d");
+    this.pauseMenu = document.getElementById("pause-menu");
 
     this.gameSettings = {
       buffer: 100,
@@ -38,6 +41,7 @@ export default class Breakout {
         7: 10
       }
     };
+    this.events = [];
     this.gameState = {
       bricks: new Array(params.rows),
       paddle: null,
@@ -53,7 +57,19 @@ export default class Breakout {
       rows: params.rows,
       columns: params.columns
     });
-    this.start();
+
+    this.keyBindings = {
+      [KEY_CODE.ESCAPE]: EVENT.PAUSE
+    };
+
+    this.eventHandlers = {};
+    this.eventHandlers[EVENT.PAUSE] = () => {
+      this.pause();
+    };
+
+    this.mouseMoveListener = (event) => {
+      this.handleMouseMove(event);
+    };
   }
 
   initialize(params) {
@@ -112,6 +128,7 @@ export default class Breakout {
         fillStyle: "magenta",
         font: "120px Trebuchet MS",
         text: Math.ceil(this.gameState.countdown / 1000).toFixed(),
+        textAlign: "center",
         position: {
           x: this.canvas.width / 2,
           y: this.canvas.height / 2
@@ -144,6 +161,8 @@ export default class Breakout {
         }
       }
 
+      // let sound = new Audio("Assets/Explosion16.wav");
+      // sound.play();
       // let start = {
       //   x: Math.min(Math.max(ball.position.x, 10), this.canvas.width - 10),
       //   y: ball.position.y
@@ -175,6 +194,8 @@ export default class Breakout {
       }
 
       this.gameState.combo = 0;
+      // let sound = new Audio("Assets/Blip_Select5.wav");
+      // sound.play();
     }
   }
 
@@ -201,33 +222,50 @@ export default class Breakout {
   }
     
   handleKeyEvent(e) {
-    // let event = this.keyBindings[e.keyCode];
-    // if (event) {
-    //   this.events.push(event);
-    // }
+    let event = this.keyBindings[e.keyCode];
+    if (event) {
+      this.events.push(event);
+    }
   }
 
   processInput() {
-    // while (this.events.length > 0) {
-    //   let event = this.events.shift();
-    //   if ((!this.done || event === EVENTS.QUIT) && this.eventHandlers[event]) {
-    //     this.eventHandlers[event](event);
-    //   }
-    // }
+    while (this.events.length > 0) {
+      let event = this.events.shift();
+      if (this.eventHandlers[event]) {
+        this.eventHandlers[event](event);
+      }
+    }
   }
 
   handleMouseMove(event) {
-    let rect = this.canvas.getBoundingClientRect();
-    let pos = {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top
-    };
+    // e.mozMovementX ||
+    // e.webkitMovementX ||
+    // 0;
 
-    // TODO: put in update function
-    this.gameState.paddle.position.x =  Math.min(Math.max(pos.x, 0), this.canvas.width - this.gameState.paddle.width);
+    // TRICKY: this awful bug: http://www.html5gamedevs.com/topic/34516-pointer-lock-bug-on-chrome-with-windows-10/
+    if (Math.sign(event.movementX) !== Math.sign(this.lastMovement)) {
+      this.lastMovement = event.movementX;
+      return;
+    }
+
+    // TODO: put in paddle update function
+    let x = this.gameState.paddle.position.x + event.movementX;
+    this.gameState.paddle.position.x = x;
+    if (this.gameState.paddle.position.x + this.gameState.paddle.width > this.canvas.width) {
+      this.gameState.paddle.position.x = this.canvas.width - this.gameState.paddle.width;
+    } else if (this.gameState.paddle.position.x < 0) {
+      this.gameState.paddle.position.x = 0;
+    }
+    
+    
+    //this.gameState.paddle.position.x =  Math.min(Math.max(x, 0), this.canvas.width - this.gameState.paddle.width);
   }
 
   gameLoop(currentTime) {
+    if (this.done || this.paused) {
+      return;
+    }
+
     let elapsedTime = currentTime - this.previousTime;
     this.previousTime = currentTime;
   
@@ -238,12 +276,51 @@ export default class Breakout {
     requestAnimationFrame((currentTime) => this.gameLoop(currentTime));
   }
 
+  handleMouseDown(event) {
+    this.canvas.requestPointerLock();
+  }
+
+  pointerLockChangeAlert() {
+    if (document.pointerLockElement === this.canvas ||
+      document.mozPointerLockElement === this.canvas) {
+      this.canvas.addEventListener("mousemove", this.mouseMoveListener);
+    } else {
+      this.eventHandlers[EVENT.PAUSE]();
+      this.canvas.removeEventListener("mousemove", this.mouseMoveListener);
+    }
+  }
+
+  // TODO: put this outside?
+  pause() {
+    this.paused = true;
+    this.pauseMenu.style.display = "flex";
+  }
+
+  resume() {
+    this.pauseMenu.style.display = "none";
+    this.paused = false;
+    this.previousTime = performance.now();
+    this.canvas.requestPointerLock();
+    requestAnimationFrame((currentTime) => this.gameLoop(currentTime));
+  }
+
   start() {
+    this.canvas.addEventListener("mousedown", (event) => this.handleMouseDown(event));
+    document.addEventListener("pointerlockchange", () => this.pointerLockChangeAlert(), false);
+    document.addEventListener("mozpointerlockchange", () => this.pointerLockChangeAlert(), false);
+
+    this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.mozRequestPointerLock;
+    this.canvas.requestPointerLock();
+
     this.previousTime = performance.now();
     requestAnimationFrame((currentTime) => this.gameLoop(currentTime));
 
     // TODO: don't do these until countdown is over?
-    document.addEventListener("keydown", (event) => this.handleKeyEvent(event));
-    this.canvas.addEventListener("mousemove", (event) => this.handleMouseMove(event));
+    document.addEventListener("keyup", (event) => this.handleKeyEvent(event));
+    
+    return new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
   }
 }

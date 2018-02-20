@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>BreakIn</title>
+  <title>BreakOut</title>
   <link rel="stylesheet" type="text/css" href="style.css">
   <link rel="icon" type="image/png" href="Assets/player-right.png">
   <script>
@@ -24,57 +24,47 @@
   <script src="Breakout/Brick.js" type="module"></script>
   <script src="Breakout/Paddle.js" type="module"></script>
   <script src="Breakout/Breakout.js" type="module"></script>
+  <script src="Breakout/BreakoutDemo.js" type="module"></script>
   <script src="Game.js" type="module"></script>
 </head>
 
 <body>
   <div class="game-group">
     <!-- Menu -->
-    <!-- <div id="menus">
-      <h1 class="title">Dungeoneer</h1>
+    <div id="menus" class="menu">
+      <h1 class="title">BreakOut</h1>
       <div id="main" class="controls">
         <button class="control" onclick="Game.newGame()">New Game</button>
         <button class="control" onclick="Game.highScores()">High Scores</button>
         <button class="control" onclick="Game.credits()">Credits</button>
       </div>
-      <div id="new-game" class="controls">
-        <h1 class="choose-difficulty">Choose Difficulty:</h1>
-        <button class="control" onclick="Game.startGame(5)">Weakling (5 x 5)</button>
-        <button class="control" onclick="Game.startGame(10)">Novice (10 x 10)</button>
-        <button class="control" onclick="Game.startGame(15)">Experienced (15 x 15)</button>
-        <button class="control" onclick="Game.startGame(20)">Adventurer (20 x 20)</button>
-        <label>
-          <input id="hard-mode" type="checkbox"/>
-          Dungeoneer Mode <small>(SPACEBAR to shoot)</small>
-        </label>
-        <hr />
-        <button class="control" onclick="Game.back()">Back</button>
-      </div>
-      <div id="high-scores" class="controls">
+      <div id="high-scores" class="controls sub-menu">
         <div class="high-scores">
           <table class="high-scores-list" id="high-scores-list">
             <tr>
               <th>Score</th>
-              <th>Time</th>
-              <th>Difficulty</th>
-              <th>Dungeoneer Mode</th>
+              <th>Bricks Destroyed</th>
             </tr>
           </table>
         </div>
         <hr />
         <button class="control" onclick="Game.back()">Back</button>
       </div>
-      <div id="credits" class="controls">
+      <div id="credits" class="controls sub-menu">
         <div>Created by Brett Bonar for CS5460 taught by Dean Mathias</div>
-        <div>Dungeon Tileset by Robert: https://0x72.itch.io/16x16-dungeon-tileset</div>
         <hr />
         <button class="control" onclick="Game.back()">Back</button>
       </div>
-    </div> -->
+    </div>
+    <div id="pause-menu" class="controls sub-menu pause-menu">
+      <button class="control" onclick="Game.resume()">Resume</button>
+      <button class="control" onclick="Game.quit()">Quit</button>
+    </div>
 
     <!-- Game -->
     <div id="canvas-group" class="canvas-group">
       <canvas class="game-canvas primary-canvas" id="canvas-main" width="1000" height="500"></canvas>
+      <canvas class="game-canvas demo-canvas" id="canvas-demo" width="1000" height="500"></canvas>
     </div>
   </div>
 </body>

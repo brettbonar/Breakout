@@ -1,33 +1,48 @@
 import Breakout from "./Breakout/Breakout.js"
+import BreakoutDemo from "./Breakout/BreakoutDemo.js"
 
 let pages = {};
 let scoresTable = null;
 
 document.addEventListener("DOMContentLoaded", function (event) {
-  // pages.menus = document.getElementById("menus");
-  // pages.main = document.getElementById("main");
-  // pages.newGame = document.getElementById("new-game");
-  // pages.highScores = document.getElementById("high-scores");
-  // pages.credits = document.getElementById("credits");
-  // pages.canvas = document.getElementById("canvas-group");
-  // scoresTable = document.getElementById("high-scores-list");
+  pages.menus = document.getElementById("menus");
+  pages.main = document.getElementById("main");
+  pages.highScores = document.getElementById("high-scores");
+  pages.credits = document.getElementById("credits");
+  pages.canvasDemo = document.getElementById("canvas-demo");
+  pages.canvasMain = document.getElementById("canvas-main");
+  pages.pauseMenu = document.getElementById("pause-menu");
+  scoresTable = document.getElementById("high-scores-list");
 
-  // pages.main.style.display = "flex";
+  pages.main.style.display = "flex";
+  Game.demo = new BreakoutDemo(pages.canvasDemo);
 });
 
-Game.startGame = function (size) {
-  let hardMode = document.getElementById("hard-mode").checked;
-  Game.thisGame = new Game.MazeGame(size, hardMode);
-  Game.thisGame.start();
-  pages.newGame.style.display = "none";
+Game.newGame = function () {
+  Game.demo.done = true;
+  Game.demo = null;
   pages.menus.style.display = "none";
-  pages.canvas.style.display = "block";
+  pages.main.style.display = "none";
+  pages.canvasDemo.style.display = "none";
+  pages.canvasMain.style.display = "block";
+  
+  Game.thisGame = new Breakout({ canvas: pages.canvasMain });
+  Game.thisGame.start();
 };
 
-Game.newGame = function () {
-  pages.main.style.display = "none";
-  pages.newGame.style.display = "flex";
-};
+Game.resume = function () {
+  Game.thisGame.resume();
+}
+
+Game.quit = function () {
+  pages.canvasMain.style.display = "none";
+  pages.pauseMenu.style.display = "none";
+  pages.menus.style.display = "block";
+  pages.main.style.display = "flex";
+  pages.canvasDemo.style.display = "block";
+  Game.thisGame = null;
+  Game.demo = new BreakoutDemo(pages.canvasDemo);
+}
 
 function getDifficulty(size) {
   if (size === 5) {
@@ -80,10 +95,8 @@ Game.back = function () {
   }
 
   pages.menus.style.display = "block";
-  pages.newGame.style.display = "none";
   pages.highScores.style.display = "none";
   pages.credits.style.display = "none";
-  pages.canvas.style.display = "none";
   pages.main.style.display = "flex";
 };
 
@@ -95,5 +108,3 @@ Game.DIRECTION = {
   LEFT: "left",
   RIGHT: "right"
 };
-
-Game.Breakout = new Breakout();

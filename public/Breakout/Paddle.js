@@ -10,7 +10,7 @@ export default class Paddle {
     };
     this.width = this.gameSettings.brickWidth * 2;
     this.height = this.gameSettings.brickHeight;
-    this.color = _.sample(this.gameSettings.brickColors);
+    this.color = this.gameSettings.brickColors[this.gameSettings.brickColors.length - 1];
   }
 
   get boundingBox() {

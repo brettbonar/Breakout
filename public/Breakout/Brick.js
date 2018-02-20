@@ -4,29 +4,29 @@ export default class Brick {
   constructor(params) {
     Object.assign(this, params);
 
-    this.position = {
-      x: params.column * (this.gameSettings.brickWidth + this.gameSettings.brickLineWidth + 2) + this.gameSettings.brickLineWidth,
-      y: this.gameSettings.buffer + params.row * (this.gameSettings.brickHeight + this.gameSettings.brickLineWidth + 2) + this.gameSettings.brickLineWidth
-    };
     this.width = this.gameSettings.brickWidth;
     this.height = this.gameSettings.brickHeight;
+    if (params.demo) {
 
-    this.box = new BoundingBox({
-      position: this.position,
-      width: this.width + this.gameSettings.brickLineWidth,
-      height: this.height + this.gameSettings.brickLineWidth
-    });
+    } else {
+      this.position = {
+        x: params.column * (this.gameSettings.brickWidth + this.gameSettings.brickLineWidth + 2) + this.gameSettings.brickLineWidth,
+        y: this.gameSettings.buffer + params.row * (this.gameSettings.brickHeight + this.gameSettings.brickLineWidth + 2) + this.gameSettings.brickLineWidth
+      };
 
-    this.pieces = [];
-    this.breakDuration = 500;
+      this.box = new BoundingBox({
+        position: this.position,
+        width: this.width + this.gameSettings.brickLineWidth,
+        height: this.height + this.gameSettings.brickLineWidth
+      });
+
+      this.pieces = [];
+      this.breakDuration = 500;
+    }
   }
 
   get boundingBox() {
     return this.box;
-  }
-
-  getPieces(params) {
-
   }
 
   destroy(params) {
@@ -39,10 +39,10 @@ export default class Brick {
     //let x2 = this.position.x + ((this.position.x + this.width) - x1);
     this.pieces = [
       {
-        line: [{ x: this.position.x, y: this.position.y + this.height }, { x: x1, y: this.position.y + this.height }],
+        line: [{ x: this.position.x, y: this.position.y }, { x: x1, y: this.position.y }],
         direction: { x: -0.5, y: -0.5 },
         rotation: 0,
-        rotate: _.random(-1, 1),
+        rotate: _.random(-1, 1, true),
         speed: 0.05
       }, {
       //   line: [{ x: x1, y: this.position.y + this.height }, { x: this.position.x + this.width, y: this.position.y + this.height }],
@@ -54,7 +54,7 @@ export default class Brick {
         line: [{ x: this.position.x, y: this.position.y + this.height }, { x: x2, y: this.position.y + this.height }],
         direction: { x: -0.5, y: 0.5 },
         rotation: 0,
-        rotate: _.random(-1, 1),
+        rotate: _.random(-1, 1, true),
         speed: 0.05
       }, {
       //   line: [{ x: x2, y: this.position.y + this.height }, { x: this.position.x + this.width, y: this.position.y + this.height }],
@@ -66,13 +66,13 @@ export default class Brick {
         line: [{ x: this.position.x, y: this.position.y }, { x: this.position.x, y: this.position.y + this.height }],
         direction: { x: -0.8, y: 0 },
         rotation: 0,
-        rotate: _.random(-1, 1),
+        rotate: _.random(-1, 1, true),
         speed: 0.05
       }, {
         line: [{ x: this.position.x + this.width, y: this.position.y }, { x: this.position.x + this.width, y: this.position.y + this.height }],
         direction: { x: 0.8, y: 0 },
         rotation: 0,
-        rotate: _.random(-1, 1),
+        rotate: _.random(-1, 1, true),
         speed: 0.05
       }
     ];
@@ -132,6 +132,12 @@ export default class Brick {
       }
     } else {
       context.save();
+
+      if (this.rotation) {
+        context.translate(this.position.x + this.width / 2, this.position.y + this.height / 2);
+        context.rotate((this.rotation * Math.PI) / 180);
+        context.translate(-(this.position.x + this.width / 2), -(this.position.y + this.height / 2));        
+      }
 
       context.strokeStyle = this.color;
       context.shadowColor = this.color;
