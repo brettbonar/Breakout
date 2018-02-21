@@ -46,8 +46,8 @@ hr {
   position: absolute;
   left: 0;
   top: 0;
-  width: 98vw;
-  height: 49vw;
+  width: calc(100vw - 14px);
+  height: calc(50vw - 7px);
 }
 
 .background {
