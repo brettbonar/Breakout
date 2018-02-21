@@ -37,11 +37,18 @@ export default class Ball {
     });
   }
 
+  get prevBoundingBox() {
+    return new BoundingBox({
+      position: this.lastPosition,
+      radius: this.radius
+    });
+  }
+
   get vector() {
     let mid = new Vector([this.lastPosition, this.position]);
+    mid.extend(this.radius);
     let left = mid.getParallelLine(this.radius);
     let right = mid.getParallelLine(-this.radius);
-    mid.extend(this.radius);
     return [mid, left, right];
   }
 
@@ -64,12 +71,17 @@ export default class Ball {
   }
 
   checkBrickCollision(elapsedTime, row, paddle) {
+    // TODO: use AABB around start and end locations for high level filtering
+
+
     // TODO: FIX ALL THIS
+    // TODO: find box and pass into this function
     // Handle brick collision
     let box = this.boundingBox;
+    box.extend(this.prevBoundingBox);
     for (const brick of row) {
       let brickBox = brick.boundingBox;
-      if (brick.destroyed) {
+      if (brick.destroyed || !box.intersects(brickBox)) {
         continue;
       }
 
