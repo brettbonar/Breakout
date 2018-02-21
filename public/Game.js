@@ -14,9 +14,35 @@ document.addEventListener("DOMContentLoaded", function (event) {
   pages.pauseMenu = document.getElementById("pause-menu");
   scoresTable = document.getElementById("high-scores-list");
 
+  //Game.onresize();
   pages.main.style.display = "flex";
   Game.demo = new BreakoutDemo(pages.canvasDemo);
 });
+
+// Game.onresize = function () {
+//   if (!pages.canvasMain || !pages.canvasDemo) {
+//     // DOM not loaded
+//     return;
+//   }
+
+//   let width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+//   let height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+//   if (height >= width / 2) {
+//     pages.canvasMain.classList.add("canvas-width-max");
+//     pages.canvasDemo.classList.add("canvas-width-max");
+//     pages.main.classList.add("canvas-width-max");
+//     pages.canvasMain.classList.remove("canvas-height-max");
+//     pages.canvasDemo.classList.remove("canvas-height-max");
+//     pages.main.classList.remove("canvas-height-max");
+//   } else {
+//     pages.canvasMain.classList.add("canvas-height-max");
+//     pages.canvasDemo.classList.add("canvas-height-max");
+//     pages.main.classList.add("canvas-height-max");
+//     pages.canvasMain.classList.remove("canvas-width-max");
+//     pages.canvasDemo.classList.remove("canvas-width-max");
+//     pages.main.classList.remove("canvas-width-max");
+//   }
+// };
 
 Game.newGame = function () {
   Game.demo.done = true;
@@ -109,3 +135,5 @@ Game.DIRECTION = {
   LEFT: "left",
   RIGHT: "right"
 };
+
+//window.onresize = Game.onresize;

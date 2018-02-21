@@ -50,6 +50,20 @@ hr {
   height: calc(50vw - 7px);
 }
 
+.canvas-width-max {
+  min-width: 1000px;
+  min-height: 500px;
+  width: calc(100vw - 14px);
+  height: calc(50vw - 7px);
+}
+
+.canvas-height-max {
+  min-width: 1000px;
+  min-height: 500px;
+  width: calc(200vh - 14px);
+  height: calc(100vh - 7px);
+}
+
 .background {
   z-index: -999;
 }
