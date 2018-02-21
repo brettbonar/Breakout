@@ -9,8 +9,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
   pages.main = document.getElementById("main");
   pages.highScores = document.getElementById("high-scores");
   pages.credits = document.getElementById("credits");
-  pages.canvasDemo = document.getElementById("canvas-demo");
   pages.canvasMain = document.getElementById("canvas-main");
+  pages.canvasDemo = document.getElementById("canvas-demo");
   pages.pauseMenu = document.getElementById("pause-menu");
   scoresTable = document.getElementById("high-scores-list");
 
@@ -35,11 +35,12 @@ Game.resume = function () {
 }
 
 Game.quit = function () {
-  pages.canvasMain.style.display = "none";
   pages.pauseMenu.style.display = "none";
   pages.menus.style.display = "block";
   pages.main.style.display = "flex";
   pages.canvasDemo.style.display = "block";
+  pages.canvasMain.style.display = "none";
+  Game.thisGame.quit();
   Game.thisGame = null;
   Game.demo = new BreakoutDemo(pages.canvasDemo);
 }

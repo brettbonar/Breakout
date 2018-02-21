@@ -6,29 +6,13 @@ export default class BreakoutDemo {
     this.context = canvas.getContext("2d");
     this.bricks = [];
     
+    let scale = this.canvas.width / 1000;
     this.gameSettings = {
-      buffer: 100,
-      brickHeight: 12,
+      brickHeight: 12 * scale,
       brickWidth: (this.canvas.width - (14 * 4) - 2) / 14,
       brickColors: ["lawnGreen", "aqua", "orange", "yellow"],
-      brickLineWidth: 2,
-      brickShadowBlur: 15,
-      ballSpeed: 0.25,
-      ballSpeedIncrease: 0.15,
-      ballSpeedIntervals: [4, 12, 36, 62],
-      ballSize: 6,
-      comboThreshold: 300,
-      // Value by row
-      brickValues: {
-        0: 50,
-        1: 50,
-        2: 30,
-        3: 30,
-        4: 20,
-        5: 20,
-        6: 10,
-        7: 10
-      }
+      brickLineWidth: 2 * scale,
+      brickShadowBlur: 15 * scale
     };
     this.previousTime = performance.now();
 
@@ -41,7 +25,7 @@ export default class BreakoutDemo {
           y: _.random(this.canvas.height)
         },
         rotate: _.random(-1, 1, true),
-        speed: _.random(0.1, 0.5, true),
+        speed: _.random(0.1, 0.3, true) * scale,
         rotation: _.random(0, 90),
         color: _.sample(this.gameSettings.brickColors),
         demo: true

@@ -6,12 +6,12 @@ export default class Brick {
 
     this.width = this.gameSettings.brickWidth;
     this.height = this.gameSettings.brickHeight;
-    if (params.demo) {
-
-    } else {
+    if (!params.demo) {
       this.position = {
-        x: params.column * (this.gameSettings.brickWidth + this.gameSettings.brickLineWidth + 2) + this.gameSettings.brickLineWidth,
-        y: this.gameSettings.buffer + params.row * (this.gameSettings.brickHeight + this.gameSettings.brickLineWidth + 2) + this.gameSettings.brickLineWidth
+        x: this.gameSettings.playArea.top.x + params.column * 
+          (this.gameSettings.brickWidth + this.gameSettings.brickLineWidth * 2) + this.gameSettings.brickLineWidth,
+        y: this.gameSettings.playArea.top.y + this.gameSettings.buffer + params.row * 
+          (this.gameSettings.brickHeight + this.gameSettings.brickLineWidth * 2) + this.gameSettings.brickLineWidth
       };
 
       this.box = new BoundingBox({
@@ -140,10 +140,12 @@ export default class Brick {
       }
 
       context.strokeStyle = this.color;
+      context.fillStyle = this.color;
       context.shadowColor = this.color;
       context.shadowBlur = this.gameSettings.brickShadowBlur;
       context.lineWidth = this.gameSettings.brickLineWidth;
       context.strokeRect(this.position.x, this.position.y, this.width, this.height);
+      //context.fillRect(this.position.x, this.position.y, this.width, this.height);
 
       context.restore();
     }

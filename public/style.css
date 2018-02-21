@@ -1,5 +1,5 @@
 body {
-  font-family: "Lucinda Console";
+  font-family: "Trebuchet MS";
   color: white;
 }
 
@@ -7,24 +7,10 @@ hr {
   width: 100%;
 }
 
-label {
-  font-size: 24px;
-}
-
-input[type=checkbox] {
-  transform: scale(4);
-  -ms-transform: scale(4);
-  -moz-transform: scale(4);
-  -webkit-transform: scale(4);
-  -o-transform: scale(4);
-  padding: 10px;
-  margin: 30px;
-}
-
 .title {
   text-align: center;
   text-transform: uppercase;
-  font-size: 4em;
+  font-size: 7vw;
   white-space: nowrap;
   /* text-shadow: 4px 4px 0 rgba(140, 117, 117, 0.7); */
   text-shadow:
@@ -39,18 +25,10 @@ input[type=checkbox] {
   text-align: center;
 }
 
-button.game-back {
-  z-index: 999;
-  padding: 5px 10px;
-  position: relative;
-}
-
 .game-group {
   position: relative;
-}
-
-.demo-canvas {
-  z-index: -1;
+  /* width: calc(100vmin - 50px);
+  height: calc(50vmin + 60px); */
 }
 
 .canvas-group {
@@ -61,28 +39,35 @@ button.game-back {
 .primary-canvas {
   z-index: -1;
   cursor: none;
-  display: none;
 }
 
 .game-canvas {
-  width: calc(100vmin - 50px);
-  height: calc(50vmin - 50px);
+  z-index: -1;
   position: absolute;
   left: 0;
   top: 0;
+  width: 98vw;
+  height: 49vw;
+}
+
+.background {
+  z-index: -999;
 }
 
 .menu {
   z-index: 9999;
+  padding-top: 50px;
+  width: 50%;
+  margin: 0 auto;
 }
 
 .controls {
   margin: auto;
-  width: 50%;
+  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  font-size: 20px;
+  font-size: 2vw;
 }
 
 .sub-menu {
@@ -91,6 +76,8 @@ button.game-back {
 
 .pause-menu {
   top: 150px;
+  width: 50%;
+  margin: 0 auto;
   position: relative;
 }
 
@@ -109,27 +96,27 @@ button.game-back {
 
 .high-scores-list tr {
   text-align: center;
-  font-size: 25px;
+  font-size: 2.5vw;
 }
 
 .high-scores-list td {
   text-align: center;
-  font-size: 20px;
+  font-size: 2vw;
 }
 
 .control {
-  font-family: "Lucinda Console";
+  font-family: "Trebuchet MS";
   flex: 1;
   margin: 10px;
   /* Button style */
-  border: 3px solid #401818;
-  background: #ac43a3;
-  background: -webkit-gradient(linear, left top, left bottom, from(#cc28a3), to(#ac43a3));
-  background: -webkit-linear-gradient(top, #cc28a3, #ac43a3);
-  background: -moz-linear-gradient(top, #cc28a3, #ac43a3);
-  background: -ms-linear-gradient(top, #cc28a3, #ac43a3);
-  background: -o-linear-gradient(top, #cc28a3, #ac43a3);
-  background-image: -ms-linear-gradient(top, #cc28a3 0%, #ac43a3 100%);
+  border: 1px solid #ffffff;
+  background: #ca2fa3;
+  background: -webkit-gradient(linear, left top, left bottom, from(#cc28a3), to(#ca2fa3));
+  background: -webkit-linear-gradient(top, #cc28a3, #ca2fa3);
+  background: -moz-linear-gradient(top, #cc28a3, #ca2fa3);
+  background: -ms-linear-gradient(top, #cc28a3, #ca2fa3);
+  background: -o-linear-gradient(top, #cc28a3, #ca2fa3);
+  background-image: -ms-linear-gradient(top, #cc28a3 0%, #ca2fa3 100%);
   padding: 13.5px 27px;
   -webkit-border-radius: 1px;
   -moz-border-radius: 1px;
@@ -139,31 +126,31 @@ button.game-back {
   box-shadow: rgba(255,255,255,0.4) 0 1px 0, inset rgba(255,255,255,0.4) 0 1px 0;
   text-shadow: #8f3232 0 1px 0;
   color: #ffffff;
-  font-size: 24px;
+  font-size: 1.75vw;
   text-decoration: none;
   vertical-align: middle;
   }
 .control:hover {
-  border: 3px solid #401818;
+  border: 1px solid #ffffff;
   text-shadow: #571e1e 0 1px 0;
-  background: #ac43a3;
-  background: -webkit-gradient(linear, left top, left bottom, from(#cc28a3), to(#ac43a3));
-  background: -webkit-linear-gradient(top, #cc28a3, #ac43a3);
-  background: -moz-linear-gradient(top, #cc28a3, #ac43a3);
-  background: -ms-linear-gradient(top, #cc28a3, #ac43a3);
-  background: -o-linear-gradient(top, #cc28a3, #ac43a3);
-  background-image: -ms-linear-gradient(top, #cc28a3 0%, #ac43a3 100%);
+  background: #cc64b2;
+  background: -webkit-gradient(linear, left top, left bottom, from(#cc64b2), to(#c968b0));
+  background: -webkit-linear-gradient(top, #cc64b2, #c968b0);
+  background: -moz-linear-gradient(top, #cc64b2, #c968b0);
+  background: -ms-linear-gradient(top, #cc64b2, #c968b0);
+  background: -o-linear-gradient(top, #cc64b2, #c968b0);
+  background-image: -ms-linear-gradient(top, #cc64b2 0%, #c968b0 100%);
   color: #fff;
   }
 .control:active {
   text-shadow: #571e1e 0 1px 0;
-  border: 3px solid #401818;
+  border: 1px solid #ffffff;
   background: #cc28a3;
-  background: -webkit-gradient(linear, left top, left bottom, from(#ac43a3), to(#ac43a3));
-  background: -webkit-linear-gradient(top, #ac43a3, #cc28a3);
-  background: -moz-linear-gradient(top, #ac43a3, #cc28a3);
-  background: -ms-linear-gradient(top, #ac43a3, #cc28a3);
-  background: -o-linear-gradient(top, #ac43a3, #cc28a3);
-  background-image: -ms-linear-gradient(top, #ac43a3 0%, #cc28a3 100%);
+  background: -webkit-gradient(linear, left top, left bottom, from(#ca2fa3), to(#ca2fa3));
+  background: -webkit-linear-gradient(top, #ca2fa3, #cc28a3);
+  background: -moz-linear-gradient(top, #ca2fa3, #cc28a3);
+  background: -ms-linear-gradient(top, #ca2fa3, #cc28a3);
+  background: -o-linear-gradient(top, #ca2fa3, #cc28a3);
+  background-image: -ms-linear-gradient(top, #ca2fa3 0%, #cc28a3 100%);
   color: #fff;
   }

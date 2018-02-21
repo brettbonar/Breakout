@@ -5,21 +5,19 @@ export default class Ball {
   constructor(params) {
     Object.assign(this, params);
 
-    this.position = {
-      x: this.canvas.width / 2,
-      y: this.canvas.height - this.gameSettings.brickHeight - 15
-    };
     this.lastPosition = {
       x: this.position.x,
       y: this.position.y
     };
 
-    this.radius = this.gameSettings.ballSize;
-    this.speed = this.gameSettings.ballSpeed;
-    this.direction = {
-      x: 0,//_.random(-0.5, 0.5, true),
-      y: -1
-    };
+    _.defaults(this, {
+      radius: this.gameSettings.ballSize,
+      speed: this.gameSettings.ballSpeed,
+      direction: {
+        x: _.random(-0.5, 0.5, true),
+        y: -1
+      }
+    });
 
     this.normalizeDirection();
   }
@@ -156,7 +154,7 @@ export default class Ball {
     let vector = this.vector;
     if (this.direction.y > 0 && vector.some((vec) => vec.intersects(paddle.boundingBox))) {
       this.direction.y = -this.direction.y;
-      this.position.y = paddle.position.y - paddle.height - 2;
+      this.position.y = paddle.position.y - paddle.height - this.gameSettings.brickLineWidth;
       paddle.color = this.color;
 
       this.direction.x = (this.position.x - (paddle.position.x + paddle.width / 2)) / (paddle.width / 2);
@@ -178,24 +176,23 @@ export default class Ball {
       }
       brick = this.checkBrickCollision(elapsedTime, row, paddle);
     });
+    if (brick) {
+      return brick;
+    }
     
     // Handle top and side collision
-    if (this.position.y < 0) {
-      this.position.y = 0;
+    if (this.position.y - this.radius < this.gameSettings.playArea.top.y) {
+      this.position.y = this.gameSettings.playArea.top.y + this.radius;
       this.direction.y = -this.direction.y;
-    } else if (this.position.y > this.canvas.height) {
-      this.position.y = this.canvas.height;
-      this.direction.y = -this.direction.y;
-      // TODO: make ball disappear
+    } else if (this.position.y - this.radius > this.gameSettings.playArea.bottom.y + this.gameSettings.playArea.bottomBuffer) {
+      this.dead = true;
     }
-    if (this.position.x < 0) {
-      this.position.x = 0;
+    if (this.position.x - this.radius < this.gameSettings.playArea.top.x) {
+      this.position.x = this.gameSettings.playArea.top.x + this.radius;
       this.direction.x = -this.direction.x;
-    } else if (this.position.x > this.canvas.width) {
-      this.position.x = this.canvas.width;
+    } else if (this.position.x + this.radius > this.gameSettings.playArea.top.x + this.gameSettings.playArea.width) {
+      this.position.x = this.gameSettings.playArea.top.x + this.gameSettings.playArea.width - this.radius;
       this.direction.x = -this.direction.x;
     }
-    
-    return brick;
   }
 }

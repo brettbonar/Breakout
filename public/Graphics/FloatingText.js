@@ -1,4 +1,6 @@
-export default class FloatingText extends Graphics.Text {
+import Text from "./Text.js"
+
+export default class FloatingText extends Text {
   constructor(spec) {
     super(spec);
     this.currentTime = 0;

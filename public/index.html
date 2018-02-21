@@ -3,9 +3,9 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>BreakOut</title>
+  <title>Breakout</title>
   <link rel="stylesheet" type="text/css" href="style.css">
-  <link rel="icon" type="image/png" href="Assets/player-right.png">
+  <link rel="icon" type="image/png" href="Assets/ball.png?v=1">
   <script>
     var Game = {};
     var Graphics = {};
@@ -16,7 +16,7 @@
   <script src="Graphics/Circle.js"></script>
   <script src="Graphics/Line.js"></script>
   <script src="Graphics/Image.js"></script>
-  <script src="Graphics/Text.js"></script>
+  <script src="Graphics/Text.js" type="module"></script>
   <script src="Graphics/FloatingText.js" type="module"></script>
   <script src="Graphics/ImageCache.js"></script>
   <script src="Graphics/Vector.js" type="module"></script>
@@ -63,8 +63,8 @@
 
     <!-- Game -->
     <div id="canvas-group" class="canvas-group">
-      <canvas class="game-canvas primary-canvas" id="canvas-main" width="1000" height="500"></canvas>
-      <canvas class="game-canvas demo-canvas" id="canvas-demo" width="1000" height="500"></canvas>
+      <canvas class="game-canvas primary-canvas" id="canvas-main" width="2000" height="1000"></canvas>
+      <canvas class="game-canvas" id="canvas-demo" width="2000" height="1000"></canvas>
     </div>
   </div>
 </body>
