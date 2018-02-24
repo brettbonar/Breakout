@@ -1,0 +1,37 @@
+<gui-menu gui-start class="menu" id="MAIN">
+  <h1 class="title">BreakOut</h1>
+  <div class="controls">
+    <button class="control" gui-click="newGame()">New Game</button>
+    <button class="control" gui-click="menus.transition('HIGH_SCORES')">High Scores</button>
+    <button class="control" gui-click="menus.transition('CREDITS')">Credits</button>
+  </div>
+</gui-menu>
+
+<gui-menu class="menu" id="HIGH_SCORES" gui-on-show="menus.showScores(getHighScores())">
+  <h1 class="title">BreakOut</h1>
+  <div class="high-scores">
+    <table class="high-scores-list" id="high-scores-list">
+      <tr>
+        <th>Score</th>
+        <th>Bricks Destroyed</th>
+        <th>Max Combo</th>
+      </tr>
+    </table>
+  </div>
+  <hr />
+  <button class="control" gui-click="menus.transition('MAIN')">Back</button>
+</gui-menu>
+
+<gui-menu class="menu" id="CREDITS">
+  <h1 class="title">BreakOut</h1>
+  <div>Created by Brett Bonar for CS5460 taught by Dean Mathias</div>
+  <hr />
+  <button class="control" gui-click="menus.transition('MAIN')">Back</button>
+</gui-menu>
+
+<gui-menu class="menu" id="PAUSE">
+  <div id="pause-menu" class="controls pause-menu">
+    <button class="control" gui-click="game.resume()">Resume</button>
+    <button class="control" gui-click="game.quit()">Quit</button>
+  </div>
+</gui-menu>

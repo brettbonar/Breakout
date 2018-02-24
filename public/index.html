@@ -5,12 +5,14 @@
   <meta charset="UTF-8">
   <title>Breakout</title>
   <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="Engine/gameUI.css">
   <link rel="icon" type="image/png" href="Assets/ball.png?v=1">
   <script>
     var Game = {};
     var Graphics = {};
   </script>
   <script src="lib/lodash/lodash.min.js"></script>
+  <script src="lib/jquery/dist/jquery.min.js"></script>
   <script src="util/keyCodes.js" type="module"></script>
   <script src="Graphics/BoundingBox.js" type="module"></script>
   <script src="Graphics/Circle.js"></script>
@@ -24,44 +26,16 @@
   <script src="Breakout/Brick.js" type="module"></script>
   <script src="Breakout/Paddle.js" type="module"></script>
   <script src="Breakout/Breakout.js" type="module"></script>
+  <script src="Breakout/BreakoutController.js" type="module"></script>
+  <script src="Breakout/BreakoutUI.js" type="module"></script>
   <script src="Breakout/BreakoutDemo.js" type="module"></script>
-  <script src="Game.js" type="module"></script>
+  <script src="Engine/Game.js" type="module"></script>
+  <script src="Engine/GameController.js" type="module"></script>
+  <script src="Engine/GameUI.js" type="module"></script>
 </head>
 
 <body>
-  <div class="game-group">
-    <!-- Menu -->
-    <div id="menus" class="menu">
-      <h1 class="title">BreakOut</h1>
-      <div id="main" class="controls">
-        <button class="control" onclick="Game.newGame()">New Game</button>
-        <button class="control" onclick="Game.highScores()">High Scores</button>
-        <button class="control" onclick="Game.credits()">Credits</button>
-      </div>
-      <div id="high-scores" class="controls sub-menu">
-        <div class="high-scores">
-          <table class="high-scores-list" id="high-scores-list">
-            <tr>
-              <th>Score</th>
-              <th>Bricks Destroyed</th>
-            </tr>
-          </table>
-        </div>
-        <hr />
-        <button class="control" onclick="Game.back()">Back</button>
-      </div>
-      <div id="credits" class="controls sub-menu">
-        <div>Created by Brett Bonar for CS5460 taught by Dean Mathias</div>
-        <hr />
-        <button class="control" onclick="Game.back()">Back</button>
-      </div>
-    </div>
-    <div id="pause-menu" class="controls sub-menu pause-menu">
-      <button class="control" onclick="Game.resume()">Resume</button>
-      <button class="control" onclick="Game.quit()">Quit</button>
-    </div>
-
-    <!-- Game -->
+  <div game-controller="BreakoutController" template="Breakout/breakout.html">
     <div id="canvas-group" class="canvas-group">
       <canvas class="game-canvas primary-canvas" id="canvas-main" width="2000" height="1000"></canvas>
       <canvas class="game-canvas" id="canvas-demo" width="2000" height="1000"></canvas>

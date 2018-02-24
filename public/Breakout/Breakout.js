@@ -1,4 +1,5 @@
 import KEY_CODE from "../util/keyCodes.js"
+import Game from "../Engine/Game.js"
 import Background from "./Background.js"
 import Ball from "./Ball.js"
 import Brick from "./Brick.js"
@@ -6,18 +7,10 @@ import Paddle from "./Paddle.js"
 import Text from "../Graphics/Text.js"
 import FloatingText from "../Graphics/FloatingText.js"
 
-const EVENT = {
-  PAUSE: "pause"
-};
-
-export default class Breakout {
+export default class Breakout extends Game {
   constructor(params) {
-    params.rows = 8;
-    params.columns = 14;
-
-    this.canvas = params.canvas;
-    this.context = this.canvas.getContext("2d");
-    this.pauseMenu = document.getElementById("pause-menu");
+    super(Object.assign(params, { requestPointerLock: true }));
+    this.menus = params.menus;
 
     let scale = this.canvas.width / 1000; 
     let bottomBuffer = 10 * scale;
@@ -98,27 +91,41 @@ export default class Breakout {
       columns: params.columns
     });
 
-    this.keyBindings = {
-      [KEY_CODE.ESCAPE]: EVENT.PAUSE
-    };
+    this.keyBindings[KEY_CODE.ESCAPE] = Game.EVENT.PAUSE;
 
-    this.eventHandlers = {};
-    this.eventHandlers[EVENT.PAUSE] = () => {
-      this.pause();
-    };
+    // this.eventHandlers = {};
+    // this.eventHandlers[EVENT.PAUSE] = () => {
+    //   this.pause();
+    // };
+    this.addEventHandler(Game.EVENT.PAUSE, () => this.pause());
 
-    this.mouseMoveListener = (event) => {
-      this.handleMouseMove(event);
-    };
-    this.keyEventListener = (event) => {
-      this.handleKeyEvent(event);
-    };
-    this.mouseDownListener = (event) => {
-      this.handleMouseDown(event);
-    };
-    this.pointerLockListener = (event) => {
-      this.pointerLockChangeAlert(event);
-    };
+    this.stateFunctions[Game.STATE.PLAYING].update = (elapsedTime) => this._update(elapsedTime);
+    this.stateFunctions[Game.STATE.PLAYING].render = (elapsedTime) => this._render(elapsedTime);
+
+    this.stateFunctions[Game.STATE.PAUSED].update = _.noop;//(elapsedTime) => this._update(elapsedTime);
+    this.stateFunctions[Game.STATE.PAUSED].render = _.noop;//(elapsedTime) => this._render(elapsedTime);
+    this.stateFunctions[Game.STATE.DONE].processInput = _.noop;
+    this.stateFunctions[Game.STATE.DONE].update = _.noop;//(elapsedTime) => this._update(elapsedTime);
+    this.stateFunctions[Game.STATE.DONE].render = _.noop;//(elapsedTime) => this._render(elapsedTime);
+    this.stateFunctions[Game.STATE.INITIALIZING].update = _.noop;//(elapsedTime) => this._update(elapsedTime);
+    this.stateFunctions[Game.STATE.INITIALIZING].render = _.noop;//(elapsedTime) => this._render(elapsedTime);
+  }
+
+  // TODO: put this outside?
+  pause() {
+    this.menus.transition("PAUSE");
+    //this.pauseMenu.style.display = "flex";
+    this.canvas.style.cursor = "default";
+    this.transitionState(Game.STATE.PAUSED);
+  }
+
+  resume() {
+    // this.pauseMenu.style.display = "none";
+    // this.canvas.style.cursor = "none";
+    this.menus.hideAll();
+    this.previousTime = performance.now();
+    this.canvas.requestPointerLock();
+    this.transitionState(Game.STATE.PLAYING);
   }
 
   initialize(params) {
@@ -205,7 +212,7 @@ export default class Breakout {
     });
   }
 
-  render() {
+  _render() {
     this.context.save();
 
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -375,7 +382,7 @@ export default class Breakout {
     }
   }
 
-  update(elapsedTime) {
+  _update(elapsedTime) {
     this.gameState.scores = this.gameState.scores.filter((score) => !score.done);
     for (const score of this.gameState.scores) {
       score.update(elapsedTime);
@@ -401,34 +408,8 @@ export default class Breakout {
 
     this.gameState.background.update(elapsedTime);
   }
-    
-  handleKeyEvent(e) {
-    let event = this.keyBindings[e.keyCode];
-    if (event) {
-      this.events.push(event);
-    }
-  }
-
-  processInput() {
-    while (this.events.length > 0) {
-      let event = this.events.shift();
-      if (this.eventHandlers[event]) {
-        this.eventHandlers[event](event);
-      }
-    }
-  }
 
   handleMouseMove(event) {
-    // e.mozMovementX ||
-    // e.webkitMovementX ||
-    // 0;
-
-    // TRICKY: this awful bug: http://www.html5gamedevs.com/topic/34516-pointer-lock-bug-on-chrome-with-windows-10/
-    if (Math.sign(event.movementX) !== Math.sign(this.lastMovement)) {
-      this.lastMovement = event.movementX;
-      return;
-    }
-
     // TODO: put in paddle update function
     let x = this.gameState.paddle.position.x + event.movementX * this.gameSettings.scale;
     this.gameState.paddle.position.x = x;
@@ -437,79 +418,6 @@ export default class Breakout {
     } else if (this.gameState.paddle.position.x < 0) {
       this.gameState.paddle.position.x = 0;
     }
-    
-    
     //this.gameState.paddle.position.x =  Math.min(Math.max(x, 0), this.gameSettings.playArea.width - this.gameState.paddle.width);
-  }
-
-  gameLoop(currentTime) {
-    if (this.done || this.paused) {
-      return;
-    }
-
-    let elapsedTime = currentTime - this.previousTime;
-    this.previousTime = currentTime;
-  
-    this.processInput();
-    this.update(elapsedTime);
-    this.render(elapsedTime);
-  
-    requestAnimationFrame((currentTime) => this.gameLoop(currentTime));
-  }
-
-  handleMouseDown(event) {
-    this.canvas.requestPointerLock();
-  }
-
-  pointerLockChangeAlert() {
-    if (document.pointerLockElement === this.canvas ||
-      document.mozPointerLockElement === this.canvas) {
-      this.canvas.addEventListener("mousemove", this.mouseMoveListener);
-    } else {
-      this.eventHandlers[EVENT.PAUSE]();
-      this.canvas.removeEventListener("mousemove", this.mouseMoveListener);
-    }
-  }
-
-  quit() {
-    this.canvas.removeEventListener("mousemove", this.mouseMoveListener);
-    this.canvas.removeEventListener("keyup", this.keyEventListener);
-    this.canvas.removeEventListener("mousedown", this.mouseDownListener);
-    document.removeEventListener("pointerlockchange", this.pointerLockListener, false);
-    document.removeEventListener("mozpointerlockchange", this.pointerLockListener, false);
-  }
-
-  // TODO: put this outside?
-  pause() {
-    this.paused = true;
-    this.pauseMenu.style.display = "flex";
-    this.canvas.style.cursor = "default";
-  }
-
-  resume() {
-    this.pauseMenu.style.display = "none";
-    this.canvas.style.cursor = "none";
-    this.paused = false;
-    this.previousTime = performance.now();
-    this.canvas.requestPointerLock();
-    requestAnimationFrame((currentTime) => this.gameLoop(currentTime));
-  }
-
-  start() {
-    document.addEventListener("pointerlockchange", this.pointerLockListener, false);
-    document.addEventListener("mozpointerlockchange", this.pointerLockListener, false);
-    this.canvas.addEventListener("keyup", this.keyEventListener);
-    this.canvas.addEventListener("mousedown", this.mouseDownListener);
-
-    this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.mozRequestPointerLock;
-    this.canvas.requestPointerLock();
-
-    this.previousTime = performance.now();
-    requestAnimationFrame((currentTime) => this.gameLoop(currentTime));
-    
-    return new Promise((resolve, reject) => {
-      this.resolve = resolve;
-      this.reject = reject;
-    });
   }
 }

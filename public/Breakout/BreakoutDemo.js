@@ -1,9 +1,9 @@
 import Brick from "./Brick.js"
+import Game from "../Engine/Game.js"
 
-export default class BreakoutDemo {
-  constructor(canvas) {
-    this.canvas = canvas;
-    this.context = canvas.getContext("2d");
+export default class BreakoutDemo extends Game {
+  constructor(params) {
+    super(params);
     this.bricks = [];
     
     let scale = this.canvas.width / 1000;
@@ -31,8 +31,6 @@ export default class BreakoutDemo {
         demo: true
       }));
     }
-
-    requestAnimationFrame((currentTime) => this.loop(currentTime));
   }
 
   update(elapsedTime) {
@@ -57,19 +55,5 @@ export default class BreakoutDemo {
     }
 
     this.context.restore();
-  }
-  
-  loop(currentTime) {
-    if (this.done) {
-      return;
-    }
-
-    let elapsedTime = currentTime - this.previousTime;
-    this.previousTime = currentTime;
-  
-    this.update(elapsedTime);
-    this.render(elapsedTime);
-  
-    requestAnimationFrame((currentTime) => this.loop(currentTime));
   }
 }
