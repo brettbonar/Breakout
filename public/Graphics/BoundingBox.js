@@ -9,6 +9,25 @@ export default class BoundingBox {
     }
   }
 
+  extend(box) {
+    // TODO: if box instanceof BoundingBox
+
+    this.box = {
+      ul: { x: Math.min(this.box.ul.x, box.box.ul.x), y: Math.min(this.box.ul.y, box.box.ul.y) },
+      ur: { x: Math.max(this.box.ur.x, box.box.ur.x), y: Math.min(this.box.ur.y, box.box.ur.y) },
+      lr: { x: Math.max(this.box.lr.x, box.box.lr.x), y: Math.max(this.box.lr.y, box.box.lr.y) },
+      ll: { x: Math.min(this.box.ll.x, box.box.ll.x), y: Math.max(this.box.ll.y, box.box.ll.y) }
+    };
+
+    this.lines = {
+      top: [this.box.ul, this.box.ur],
+      bottom: [this.box.lr, this.box.ll],
+      right: [this.box.ur, this.box.lr],
+      left: [this.box.ll, this.box.ul]
+    };
+
+  }
+
   constructFromLine(params) {
     this.lines = [params.line];
   }
