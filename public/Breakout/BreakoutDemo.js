@@ -1,10 +1,16 @@
-import Brick from "./Brick.js"
+import Brick from "./Objects/Brick.js"
 import Game from "../Engine/Game.js"
+import PhysicsEngine from "../Engine/Physics/PhysicsEngine.js"
+import FlatRenderingEngine from "../Engine/Rendering/FlatRenderingEngine.js"
 
 export default class BreakoutDemo extends Game {
   constructor(params) {
     super(params);
     this.bricks = [];
+    this.physicsEngine = new PhysicsEngine();
+    this.renderingEngine = new FlatRenderingEngine({
+      context: this.context
+    });
     
     let scale = this.canvas.width / 1000;
     this.gameSettings = {
@@ -24,7 +30,11 @@ export default class BreakoutDemo extends Game {
           x: _.random(this.canvas.width),
           y: _.random(this.canvas.height)
         },
-        rotate: _.random(-1, 1, true),
+        direction: {
+          x: 0,
+          y: 1
+        },
+        spin: _.random(-1, 1, true),
         speed: _.random(0.1, 0.3, true) * scale,
         rotation: _.random(0, 90),
         color: _.sample(this.gameSettings.brickColors),
@@ -34,25 +44,23 @@ export default class BreakoutDemo extends Game {
   }
 
   update(elapsedTime) {
+    this.physicsEngine.update(elapsedTime, this.bricks);
     for (const brick of this.bricks) {
       if (brick.position.y > this.canvas.height + brick.width) {
         brick.position.y = -brick.width;
       }
-      brick.position.y += elapsedTime * brick.speed;
-      brick.rotation += (elapsedTime / 50) * brick.rotate;
     }
   }
 
   render(elapsedTime) {
     this.context.save();
 
+    // TODO: figure out how to do background
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.fillStyle = "black";
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    for (const brick of this.bricks) {
-      brick.render(this.context);
-    }
+    this.renderingEngine.render(this.bricks, elapsedTime);
 
     this.context.restore();
   }

@@ -1,4 +1,4 @@
-import Brick from "./Brick.js"
+import Brick from "./Objects/Brick.js"
 
 export default class Background {
   constructor(mainCanvas, gameSettings) {

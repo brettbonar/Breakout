@@ -8,8 +8,8 @@ export default class Text {
     context.fillStyle = params.fillStyle || "red";
     context.strokeStyle = params.strokeStyle;
     context.textAlign = params.textAlign || "start";
-    context.strokeText(params.text, params.position.x, params.position.y);
     context.fillText(params.text, params.position.x, params.position.y);
+    context.strokeText(params.text, params.position.x, params.position.y);
   }
 
   render(context) {

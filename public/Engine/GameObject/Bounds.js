@@ -1,13 +1,22 @@
-export default class BoundingBox {
+const TYPE = {
+  RECTANGLE: "rectangle",
+  CIRCLE: "circle",
+  POINT: "point",
+  LINE: "line"
+}
+
+export default class Bounds {
   constructor(params) {
-    if (params.position && !_.isUndefined(params.radius)) {
+    if (params.boundsType === TYPE.CIRCLE) {
       this.constructFromCircle(params);
-    } else if (params.position && !_.isUndefined(params.width) && !_.isUndefined(params.height)) {
+    } else if (params.boundsType === TYPE.RECTANGLE) {
       this.constructFromRectangle(params);
-    } else if (params.line) {
+    } else if (params.boundsType === TYPE.LINE) {
       this.constructFromLine(params);
     }
   }
+
+  static get TYPE() { return TYPE; }
 
   extend(box) {
     // TODO: if box instanceof BoundingBox
@@ -29,15 +38,15 @@ export default class BoundingBox {
   }
 
   constructFromLine(params) {
-    this.lines = [params.line];
+    this.lines = [params.dimensions.line];
   }
 
   constructFromCircle(params) {
     this.box = {
-      ul: { x: params.position.x - params.radius, y: params.position.y - params.radius },
-      ur: { x: params.position.x + params.radius, y: params.position.y - params.radius },
-      lr: { x: params.position.x + params.radius, y: params.position.y + params.radius },
-      ll: { x: params.position.x - params.radius, y: params.position.y + params.radius }
+      ul: { x: params.position.x - params.dimensions.radius, y: params.position.y - params.dimensions.radius },
+      ur: { x: params.position.x + params.dimensions.radius, y: params.position.y - params.dimensions.radius },
+      lr: { x: params.position.x + params.dimensions.radius, y: params.position.y + params.dimensions.radius },
+      ll: { x: params.position.x - params.dimensions.radius, y: params.position.y + params.dimensions.radius }
     };
 
     this.lines = {
@@ -52,9 +61,9 @@ export default class BoundingBox {
     // TODO: handle line width?
     this.box = {
       ul: { x: params.position.x, y: params.position.y },
-      ur: { x: params.position.x + params.width, y: params.position.y },
-      lr: { x: params.position.x + params.width, y: params.position.y + params.height },
-      ll: { x: params.position.x, y: params.position.y + params.height }
+      ur: { x: params.position.x + params.dimensions.width, y: params.position.y },
+      lr: { x: params.position.x + params.dimensions.width, y: params.position.y + params.dimensions.height },
+      ll: { x: params.position.x, y: params.position.y + params.dimensions.height }
     };
 
     this.lines = {
@@ -78,8 +87,20 @@ export default class BoundingBox {
     }
   }
 
+  getIntersections(target) {
+    if (target instanceof Bounds) {
+      if (this.intersects(target)) {
+        return target.lines.filter((line) => this.intersects(line));
+      }
+    } else if (_.isArray(target)) {
+      return this.intersects(target) ? [target] : [];
+    }
+    return [];
+  }
+
   intersects(target) {
-    if (target instanceof BoundingBox) {
+    // TODO: add circle intersection tests
+    if (target instanceof Bounds) {
       let box = target.box;
       return this.box.ul.x < box.lr.x &&
         this.box.lr.x > box.ul.x &&
@@ -88,8 +109,6 @@ export default class BoundingBox {
     } else if (_.isArray(target)) { // Line [{ x, y }, { x, y }]
       return _.some(this.lines, (line) => this.intersectsLine(line, target));
     }
-
-    // else test collision against line
 
     return false;
   }

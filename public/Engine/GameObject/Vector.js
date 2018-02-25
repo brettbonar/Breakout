@@ -1,4 +1,4 @@
-import BoundingBox from "./BoundingBox.js"
+import Bounds from "./Bounds.js"
 
 export default class Vector {
   constructor(params) {
@@ -19,7 +19,7 @@ export default class Vector {
   }
 
   intersects(target) {
-    if (target instanceof BoundingBox) {
+    if (target instanceof Bounds) {
       return _.some(target.lines, (line) => this.intersectsLine(this.vector, line));
     } else if (_.isArray(target)) { // Line [{ x, y }, { x, y }]
       return this.intersectsLine(this.vector, target);
@@ -28,6 +28,17 @@ export default class Vector {
     }
 
     return false;
+  }
+
+  getIntersections(target) {
+    if (target instanceof Bounds) {
+      return target.lines.filter((line) => this.intersectsLine(line));
+    } else if (_.isArray(target)) {
+      return this.intersectsLine(this.vector, target) ? [target] : [];
+    } else if (target instanceof Vector) {
+      return this.intersectsLine(this.vector, target.vector) ? [target] : [];
+    }
+    return [];
   }
 
   get first() {

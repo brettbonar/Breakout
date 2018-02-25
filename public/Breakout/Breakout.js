@@ -1,15 +1,29 @@
 import KEY_CODE from "../util/keyCodes.js"
 import Game from "../Engine/Game.js"
+import GameObject from "../Engine/GameObject/GameObject.js"
+import Bounds from "../Engine/GameObject/Bounds.js"
 import Background from "./Background.js"
-import Ball from "./Ball.js"
-import Brick from "./Brick.js"
-import Paddle from "./Paddle.js"
+import Ball from "./Objects/Ball.js"
+import Brick from "./Objects/Brick.js"
+import Paddle from "./Objects/Paddle.js"
 import Text from "../Graphics/Text.js"
 import FloatingText from "../Graphics/FloatingText.js"
+import PhysicsEngine from "../Engine/Physics/PhysicsEngine.js"
+import FlatRenderingEngine from "../Engine/Rendering/FlatRenderingEngine.js"
+import ParticleEngine from "../Engine/Effects/ParticleEngine.js"
+import { MOVEMENT_TYPE } from "../Engine/Physics/PhysicsConstants.js";
+import BrickDestroyedEffect from "./Effects/BrickDestroyedEffect.js";
 
 export default class Breakout extends Game {
   constructor(params) {
     super(Object.assign(params, { requestPointerLock: true }));
+    this.physicsEngine = new PhysicsEngine();
+    this.renderingEngine = new FlatRenderingEngine({
+      context: this.context
+    });
+    this.particleEngine = new ParticleEngine({
+      context: this.context
+    });
     this.menus = params.menus;
 
     let scale = this.canvas.width / 1000; 
@@ -33,6 +47,19 @@ export default class Breakout extends Game {
       width: this.canvas.width,
       height: this.canvas.height - uiAreaSize * scale - bottomBuffer
     };
+
+    playArea.bounds = {
+      ul: playArea.top,
+      ur: {
+        x: playArea.top.x + playArea.width,
+        y: playArea.top.y
+      },
+      lr: {
+        x: playArea.bottom.x + playArea.width,
+        y: playArea.bottom.y
+      },
+      ll: playArea.bottom
+    };
    
     let brickLineWidth = 2 * scale;
     this.gameSettings = {
@@ -55,6 +82,7 @@ export default class Breakout extends Game {
       ballSize: 6 * scale,
       newBallInterval: 100,
       comboThreshold: 30,
+      numPaddles: 3,
       maxCombo: 0,
       // Value by row
       brickValues: {
@@ -83,9 +111,11 @@ export default class Breakout extends Game {
       intervalCounter: 0,
       // TODO: make this better
       clearedRows: [],
-      paddlesLeft: 3,
+      paddlesLeft: [],
+      walls: [],
       background: new Background(this.canvas, this.gameSettings)
     };
+    
     this.initialize({
       rows: params.rows,
       columns: params.columns
@@ -109,6 +139,22 @@ export default class Breakout extends Game {
     this.stateFunctions[Game.STATE.DONE].render = _.noop;//(elapsedTime) => this._render(elapsedTime);
     this.stateFunctions[Game.STATE.INITIALIZING].update = _.noop;//(elapsedTime) => this._update(elapsedTime);
     this.stateFunctions[Game.STATE.INITIALIZING].render = _.noop;//(elapsedTime) => this._render(elapsedTime);
+  }
+
+  createBall(params) {
+    this.gameState.balls.push(new Ball(Object.assign({
+      gameSettings: this.gameSettings,
+      color: this.gameState.paddle.color,
+      canvas: this.canvas,
+      dimensions: {
+        radius: this.gameSettings.ballSize
+      },
+      speed: this.gameSettings.ballSpeed,
+      direction: {
+        x: _.random(-0.5, 0.5, true),
+        y: -1
+      }
+    }, params)));
   }
 
   // TODO: put this outside?
@@ -137,44 +183,92 @@ export default class Breakout extends Game {
           row: row,
           column: column,
           canvas: this.canvas,
+          static: true,
           gameSettings: this.gameSettings,
           color: this.gameSettings.brickColors[Math.floor(row / 2)],
           value: this.gameSettings.brickValues[row]
         });
       });
     }
-
-    this.gameState.paddle = new Paddle({
-      gameSettings: this.gameSettings,
-      width: this.gameSettings.paddleWidth,
-      canvas: this.canvas
-    });
-
-    this.gameState.balls.push(new Ball({
-      gameSettings: this.gameSettings,
-      position: {
-        x: this.gameSettings.playArea.center.x,
-        y: this.gameSettings.playArea.bottom.y - this.gameSettings.brickHeight - this.gameSettings.ballSize
-      },
-      color: this.gameState.paddle.color,
-      canvas: this.canvas
-    }));
-  }
-
-  drawPaddlesLeft() {
-    for (let i = 0; i < this.gameState.paddlesLeft; i++) {
-      Paddle.draw(this.context, {
-        //color: this.gameState.paddle.color,
-        color: "magenta",
+    
+    for (let i = 0; i < this.gameSettings.numPaddles; i++) {
+      this.gameState.paddlesLeft.push(new Paddle({        
         shadowBlur: this.gameSettings.brickShadowBlur,
-        width: this.gameSettings.paddleWidth,
-        height: this.gameSettings.brickHeight,
+        dimensions: {
+          width: this.gameSettings.paddleWidth,
+          height: this.gameSettings.brickHeight
+        },
         position: {
           x: 10 * this.gameSettings.scale + i * (this.gameSettings.paddleWidth + 15),
           y: this.gameSettings.uiAreaSize / 2 - this.gameSettings.brickHeight / 2
-        }
-      });
+        },
+        color: "magenta"
+      }));
     }
+
+    this.gameState.paddle = new Paddle({
+      shadowBlur: this.gameSettings.brickShadowBlur,
+      dimensions: {
+        width: this.gameSettings.paddleWidth,
+        height: this.gameSettings.brickHeight
+      },
+      position: {
+        x: this.gameSettings.playArea.center.x,
+        y: this.gameSettings.playArea.bottom.y - this.gameSettings.brickHeight
+      },
+      color: this.gameSettings.brickColors[this.gameSettings.brickColors.length - 1]
+    });
+
+    this.createBall({
+      position: {
+        x: this.gameSettings.playArea.center.x,
+        y: this.gameSettings.playArea.bottom.y - this.gameSettings.brickHeight - this.gameSettings.ballSize
+      }
+    });
+
+    // Add walls
+    // Left:
+    this.gameState.walls.push(new GameObject({
+      position: {
+        x: this.gameSettings.playArea.top.x,
+        y: this.gameSettings.playArea.center.y
+      },
+      dimensions: {
+        line: [this.gameSettings.playArea.bounds.ul, this.gameSettings.playArea.bounds.ll]
+      },
+      boundsType: Bounds.TYPE.LINE,
+      physics: {
+        movementType: MOVEMENT_TYPE.FIXED
+      }
+    }));
+    // Right:
+    this.gameState.walls.push(new GameObject({
+      position: {
+        x: this.gameSettings.playArea.top.x + this.gameSettings.playArea.width,
+        y: this.gameSettings.playArea.center.y
+      },
+      dimensions: {
+        line: [this.gameSettings.playArea.bounds.ur, this.gameSettings.playArea.bounds.lr]
+      },
+      boundsType: Bounds.TYPE.LINE,
+      physics: {
+        movementType: MOVEMENT_TYPE.FIXED
+      }
+    }));
+    // Top:
+    this.gameState.walls.push(new GameObject({
+      position: {
+        x: this.gameSettings.playArea.center.x,
+        y: this.gameSettings.playArea.top.y
+      },
+      dimensions: {
+        line: [this.gameSettings.playArea.bounds.ul, this.gameSettings.playArea.bounds.ur]
+      },
+      boundsType: Bounds.TYPE.LINE,
+      physics: {
+        movementType: MOVEMENT_TYPE.FIXED
+      }
+    }));
   }
 
   drawScore() {
@@ -212,14 +306,208 @@ export default class Breakout extends Game {
     });
   }
 
-  _render() {
+  destroyBrick(brick, ball) {
+    for (const row of this.gameState.bricks) {
+      if (row.includes(brick)) {
+        _.remove(row, brick);
+        this.particleEngine.addEffect(new BrickDestroyedEffect({
+          gameSettings: this.gameSettings,
+          brick: brick,
+          duration: 2000
+        }));
+        ball.setColor(brick.color);
+      
+        // Make sure text doesn't render out of bounds
+        this.gameState.score += brick.value;
+        this.gameState.combo += brick.value;
+        this.gameState.intervalCounter += brick.value;
+        this.gameState.bricksDestroyed += 1;
+        this.gameState.paddleBricksDestroyed += 1;
+  
+        // TODO: make this better
+        if (brick.row === 0 && !this.gameState.brokeThrough) {
+          this.gameState.brokeThrough = true;
+          this.gameState.paddle.dimensions.width /= 2;
+        }
+  
+        if (this.gameSettings.ballSpeedIntervals.includes(this.gameState.paddleBricksDestroyed)) {
+          for (const ball of this.gameState.balls) {
+            ball.speed += this.gameSettings.ballSpeedIncrease;
+          }
+        }
+  
+        if (!this.gameState.clearedRows.includes(brick.row)) {
+          if (row.length === 0) {
+            this.gameState.clearedRows.push(brick.row);
+            this.gameState.score += 25;
+            this.gameState.combo += 25;
+            this.gameState.intervalCounter += 25;
+            if (this.gameState.clearedRows.length === this.gameSettings.rows) {
+              this.transitionState(STATE.DONE);
+              this.gameState.maxCombo = Math.max(this.gameState.maxCombo, this.gameState.combo);
+            }
+          }
+        }
+        
+        while (this.gameState.intervalCounter >= this.gameSettings.newBallInterval) {
+          this.gameState.intervalCounter -= this.gameSettings.newBallInterval;
+          this.createBall({
+            position: {
+              x: this.gameState.paddle.center.x,
+              y: this.gameSettings.playArea.bottom.y - this.gameSettings.brickHeight - this.gameSettings.ballSize
+            },
+            speed: this.gameState.balls[0].speed
+          })
+        }
+  
+        // let sound = new Audio("Assets/Explosion16.wav");
+        // sound.play();
+        // let start = {
+        //   x: Math.min(Math.max(ball.position.x, 10), this.gameSettings.playArea.width - 10),
+        //   y: ball.position.y
+        // };
+        // this.gameState.scores.push(new FloatingText({
+        //   fillStyle: brick.color,
+        //   duration: 1000,
+        //   text: brick.value,
+        //   start: start,
+        //   end: { x: start.x, y: start.y - 100 },
+        //   fade: true
+        // }));
+
+      }
+    }
+  }
+
+  hitPaddle(paddle, ball) {
+    paddle.setColor(ball.color);
+
+    if (this.gameState.combo >= this.gameSettings.comboThreshold) {
+      let start = {
+        x: this.gameSettings.playArea.center.x,
+        y: this.gameSettings.playArea.bottom.y - 150 * this.gameSettings.scale
+      };
+      
+      this.gameState.scores.push(new FloatingText({
+        fillStyle: "magenta",
+        duration: 2000,
+        fade: true,
+        font: "60px Trebuchet MS",
+        text: this.gameState.combo + " POINT COMBO",
+        start: start,
+        end: { x: start.x, y: start.y - 100 * this.gameSettings.scale }
+      }));
+    }
+
+    this.gameState.maxCombo = Math.max(this.gameState.maxCombo, this.gameState.combo);
+    this.gameState.combo = 0;
+    // let sound = new Audio("Assets/Blip_Select5.wav");
+    // sound.play();
+  }
+
+  killBall(ball) {
+    _.remove(this.gameState.balls, ball);
+
+    if (this.gameState.balls.length === 0) {
+      this.gameState.paddlesLeft.pop();
+      if (this.gameState.paddlesLeft < 0) {
+        this.transitionState(STATE.DONE);
+      } else {
+        // Start a new ball
+        this.gameState.countdown = 3000;
+        this.gameState.paddleBricksDestroyed = 0;
+        this.gameState.paddle.dimensions.width = this.gameSettings.paddleWidth;
+        this.gameState.brokeThrough = false;
+        this.gameState.combo = 0;
+        
+        this.createBall({
+          position: {
+            x: this.gameState.paddle.center.x,
+            y: this.gameSettings.playArea.bottom.y - this.gameSettings.brickHeight - this.gameSettings.ballSize
+          }
+        });
+      }
+    }
+  }
+
+  handleCollisions(collisions) {
+    for (const collision of collisions) {
+      if (collision.target === this.gameState.paddle) {
+        this.hitPaddle(collision.target, collision.source);
+      } else if (collision.target instanceof Brick) {
+        this.destroyBrick(collision.target, collision.source);
+      }
+    }
+
+    for (const ball of this.gameState.balls) {
+      if (ball.position.y - ball.radius > this.gameSettings.playArea.bottom.y + this.gameSettings.playArea.bottomBuffer) {
+        this.killBall(ball);
+      }
+    }
+  }
+
+  handleMouseMove(event) {
+    // TODO: put in paddle update function
+    let x = this.gameState.paddle.position.x + event.movementX * this.gameSettings.scale;
+    this.gameState.paddle.position.x = x;
+    if (this.gameState.paddle.position.x + this.gameState.paddle.width > this.gameSettings.playArea.width) {
+      this.gameState.paddle.position.x = this.gameSettings.playArea.width - this.gameState.paddle.width;
+    } else if (this.gameState.paddle.position.x < 0) {
+      this.gameState.paddle.position.x = 0;
+    }
+    //this.gameState.paddle.position.x =  Math.min(Math.max(x, 0), this.gameSettings.playArea.width - this.gameState.paddle.width);
+  }
+
+  getUIRenderObjects() {
+    return this.gameState.paddlesLeft;
+  }
+
+  getPlayRenderObjects() {
+    let objs = [];
+    for (const row of this.gameState.bricks) {
+      objs = objs.concat(row);
+    }
+    return objs.concat(this.gameState.balls).concat([this.gameState.paddle]);
+  }
+
+  getPhysicsObjects() {
+    let objs = [];
+    for (const row of this.gameState.bricks) {
+      objs = objs.concat(row);
+    }
+    return objs.concat(this.gameState.balls).concat([this.gameState.paddle]).concat(this.gameState.walls);
+  }
+  
+  _update(elapsedTime) {
+    this.gameState.scores = this.gameState.scores.filter((score) => !score.done);
+    for (const score of this.gameState.scores) {
+      score.update(elapsedTime);
+    }
+    
+    if (this.gameState.countdown > 0) {
+      this.gameState.countdown -= elapsedTime;
+      // TODO: put this anywhere else
+      for (const ball of this.gameState.balls) {
+        ball.position.x = this.gameState.paddle.center.x;
+      }
+    } else {
+      let collisions = this.physicsEngine.update(elapsedTime, this.getPhysicsObjects());
+      this.handleCollisions(collisions);
+    }
+
+    this.particleEngine.update(elapsedTime);
+
+    this.gameState.background.update(elapsedTime);
+  }
+
+  _render(elapsedTime) {
     this.context.save();
 
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.fillStyle = "black";
     //this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.drawPaddlesLeft();
     this.drawScore();
+    this.renderingEngine.render(this.getUIRenderObjects(), elapsedTime);
 
     // Clip canvas for remaining rendering
     this.context.beginPath(); 
@@ -231,17 +519,8 @@ export default class Breakout extends Game {
     // this.context.fillRect(this.gameSettings.playArea.top.x, this.gameSettings.playArea.top.y,
     //   this.gameSettings.playArea.width, this.gameSettings.playArea.height + this.gameSettings.playArea.bottomBuffer);
     
-    for (const row of this.gameState.bricks) {
-      for (const brick of row) {
-        brick.render(this.context);
-      }
-    }
-
-    this.gameState.paddle.render(this.context);
-
-    for (const ball of this.gameState.balls) {
-      ball.render(this.context);
-    }
+    this.renderingEngine.render(this.getPlayRenderObjects(), elapsedTime);
+    this.particleEngine.render(elapsedTime);
 
     for (const score of this.gameState.scores) {
       score.render(this.context);
@@ -261,163 +540,5 @@ export default class Breakout extends Game {
     this.gameState.background.render();
 
     this.context.restore();
-  }
-
-  updateBall(elapsedTime, ball) {
-    let result = ball.update(elapsedTime, this.gameState.bricks, this.gameState.paddle);
-      
-    // TODO: fix this shameless hack
-    if (result && result.brick) {
-      // Make sure text doesn't render out of bounds
-      this.gameState.score += result.brick.value;
-      this.gameState.combo += result.brick.value;
-      this.gameState.intervalCounter += result.brick.value;
-      this.gameState.bricksDestroyed += 1;
-      this.gameState.paddleBricksDestroyed += 1;
-
-      // TODO: make this better
-      if (result.brick.row === 0 && !this.gameState.brokeThrough) {
-        this.gameState.brokeThrough = true;
-        this.gameState.paddle.width /= 2;
-      }
-
-      if (this.gameSettings.ballSpeedIntervals.includes(this.gameState.paddleBricksDestroyed)) {
-        for (const ball of this.gameState.balls) {
-          ball.speed += this.gameSettings.ballSpeedIncrease;
-        }
-      }
-
-      if (!this.gameState.clearedRows.includes(result.brick.row)) {
-        let cleared = this.gameState.bricks[result.brick.row].every((brick) => {
-          return brick.destroyed;
-        });
-        if (cleared) {
-          this.gameState.clearedRows.push(result.brick.row);
-          this.gameState.score += 25;
-          this.gameState.combo += 25;
-          this.gameState.intervalCounter += 25;
-          if (this.gameState.clearedRows.length === this.gameSettings.rows) {
-            this.done = true;
-            this.gameState.maxCombo = Math.max(this.gameState.maxCombo, this.gameState.combo);
-          }
-        }
-      }
-
-      while (this.gameState.intervalCounter >= this.gameSettings.newBallInterval) {
-        this.gameState.intervalCounter -= this.gameSettings.newBallInterval;
-        this.gameState.balls.push(
-          new Ball({
-            gameSettings: this.gameSettings,
-            position: {
-              x: this.gameState.paddle.center.x,
-              y: this.gameSettings.playArea.bottom.y - this.gameSettings.brickHeight - this.gameSettings.ballSize
-            },
-            color: this.gameState.paddle.color,
-            speed: this.gameState.balls[0].speed,
-            canvas: this.canvas
-        }));
-      }
-
-      // let sound = new Audio("Assets/Explosion16.wav");
-      // sound.play();
-      // let start = {
-      //   x: Math.min(Math.max(ball.position.x, 10), this.gameSettings.playArea.width - 10),
-      //   y: ball.position.y
-      // };
-      // this.gameState.scores.push(new FloatingText({
-      //   fillStyle: result.brick.color,
-      //   duration: 1000,
-      //   text: result.brick.value,
-      //   start: start,
-      //   end: { x: start.x, y: start.y - 100 },
-      //   fade: true
-      // }));
-    } else if (result && result.paddle) {
-      if (this.gameState.combo >= this.gameSettings.comboThreshold) {
-        let start = {
-          x: this.gameSettings.playArea.center.x,
-          y: this.gameSettings.playArea.bottom.y - 150 * this.gameSettings.scale
-        };
-        
-        this.gameState.scores.push(new FloatingText({
-          fillStyle: "magenta",
-          duration: 2000,
-          fade: true,
-          font: "60px Trebuchet MS",
-          text: this.gameState.combo + " POINT COMBO",
-          start: start,
-          end: { x: start.x, y: start.y - 100 * this.gameSettings.scale }
-        }));
-      }
-
-      this.gameState.maxCombo = Math.max(this.gameState.maxCombo, this.gameState.combo);
-      this.gameState.combo = 0;
-      // let sound = new Audio("Assets/Blip_Select5.wav");
-      // sound.play();
-    } else if (ball.dead) {
-      _.remove(this.gameState.balls, ball);
-
-      if (this.gameState.balls.length === 0) {
-        this.gameState.paddlesLeft -= 1;
-        if (this.gameState.paddlesLeft < 0) {
-          this.done = true;
-        } else {
-          // Start a new ball
-          this.gameState.countdown = 3000;
-          this.gameState.paddleBricksDestroyed = 0;
-          this.gameState.paddle.width = this.gameSettings.paddleWidth;
-          this.gameState.brokeThrough = false;
-          this.gameState.combo = 0;
-          this.gameState.balls.push(new Ball({
-            gameSettings: this.gameSettings,
-            position: {
-              x: this.gameSettings.playArea.center.x,
-              y: this.gameSettings.playArea.bottom.y - this.gameSettings.brickHeight - this.gameSettings.ballSize
-            },
-            color: this.gameState.paddle.color,
-            canvas: this.canvas
-          }));
-        }
-      }
-    }
-  }
-
-  _update(elapsedTime) {
-    this.gameState.scores = this.gameState.scores.filter((score) => !score.done);
-    for (const score of this.gameState.scores) {
-      score.update(elapsedTime);
-    }
-
-    for (const row of this.gameState.bricks) {
-      for (const brick of row) {
-        brick.update(elapsedTime);
-      }
-    }
-    
-    if (this.gameState.countdown > 0) {
-      this.gameState.countdown -= elapsedTime;
-      // TODO: put this anywhere else
-      for (const ball of this.gameState.balls) {
-        ball.position.x = this.gameState.paddle.center.x;
-      }
-    } else {
-      for (const ball of this.gameState.balls) {
-        this.updateBall(elapsedTime, ball);
-      }
-    }
-
-    this.gameState.background.update(elapsedTime);
-  }
-
-  handleMouseMove(event) {
-    // TODO: put in paddle update function
-    let x = this.gameState.paddle.position.x + event.movementX * this.gameSettings.scale;
-    this.gameState.paddle.position.x = x;
-    if (this.gameState.paddle.position.x + this.gameState.paddle.width > this.gameSettings.playArea.width) {
-      this.gameState.paddle.position.x = this.gameSettings.playArea.width - this.gameState.paddle.width;
-    } else if (this.gameState.paddle.position.x < 0) {
-      this.gameState.paddle.position.x = 0;
-    }
-    //this.gameState.paddle.position.x =  Math.min(Math.max(x, 0), this.gameSettings.playArea.width - this.gameState.paddle.width);
   }
 }
