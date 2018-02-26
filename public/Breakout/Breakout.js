@@ -175,9 +175,20 @@ export default class Breakout extends Game {
   }
 
   initialize(params) {
+    let col = 1;
     for (let row = 0; row < params.rows; row++) {
       this.gameState.bricks[row] = new Array(params.columns);
       this.gameState.bricks[row].fill(null);
+      // this.gameState.bricks[row] = [
+      //   new Brick({
+      //     row: row,
+      //     column: col += 2,
+      //     canvas: this.canvas,
+      //     static: true,
+      //     gameSettings: this.gameSettings,
+      //     color: this.gameSettings.brickColors[Math.floor(row / 2)],
+      //     value: this.gameSettings.brickValues[row]
+      //   })];
       this.gameState.bricks[row] = this.gameState.bricks[row].map((val, column) => {
         return new Brick({
           row: row,
@@ -191,6 +202,7 @@ export default class Breakout extends Game {
       });
     }
     
+    // Add number of paddles left
     for (let i = 0; i < this.gameSettings.numPaddles; i++) {
       this.gameState.paddlesLeft.push(new Paddle({        
         shadowBlur: this.gameSettings.brickShadowBlur,
@@ -313,6 +325,7 @@ export default class Breakout extends Game {
         this.particleEngine.addEffect(new BrickDestroyedEffect({
           gameSettings: this.gameSettings,
           brick: brick,
+          ball: ball,
           duration: 2000
         }));
         ball.setColor(brick.color);
@@ -343,7 +356,7 @@ export default class Breakout extends Game {
             this.gameState.combo += 25;
             this.gameState.intervalCounter += 25;
             if (this.gameState.clearedRows.length === this.gameSettings.rows) {
-              this.transitionState(STATE.DONE);
+              this.transitionState(Game.STATE.DONE);
               this.gameState.maxCombo = Math.max(this.gameState.maxCombo, this.gameState.combo);
             }
           }
@@ -411,7 +424,7 @@ export default class Breakout extends Game {
     if (this.gameState.balls.length === 0) {
       this.gameState.paddlesLeft.pop();
       if (this.gameState.paddlesLeft < 0) {
-        this.transitionState(STATE.DONE);
+        this.transitionState(Game.STATE.DONE);
       } else {
         // Start a new ball
         this.gameState.countdown = 3000;
