@@ -40,8 +40,8 @@ export default class Brick extends GameObject {
       renderer: new RectangleRenderer({
         strokeStyle: params.color,
         fillStyle: params.color,
-        shadowColor: params.color,
-        shadowBlur: params.gameSettings.brickShadowBlur,
+        // shadowColor: params.color,
+        // shadowBlur: params.gameSettings.brickShadowBlur,
         lineWidth: params.gameSettings.brickLineWidth
       }),
       position: params.position || {

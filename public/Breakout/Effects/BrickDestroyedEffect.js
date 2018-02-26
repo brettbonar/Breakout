@@ -140,24 +140,24 @@ export default class BrickDestroyedEffect extends Effect {
       yb: box.lr.y
     };
     let sites = [];
-    let numPoints = 100;
+    let numPoints = 10;
     let contactPoint = {
       x: _.clamp(params.ball.position.x, params.brick.position.x, params.brick.position.x + params.brick.width),
       y: _.clamp(params.ball.position.y, params.brick.position.y, params.brick.position.y + params.brick.height)
     };
     let contactBox = this.getContactBox(params, contactPoint);
-    for (let i = 0; i < numPoints / 2; i++) {
+    for (let i = 0; i < numPoints; i++) {
       sites.push({
         x: Math.random() * (contactBox.lr.x - contactBox.ul.x) + contactBox.ul.x,
         y: Math.random() * (contactBox.lr.y - contactBox.ul.y) + contactBox.ul.y
       });
     }
-    for (let i = 0; i < numPoints / 2; i++) {
-      sites.push({
-        x: Math.random() * params.brick.width + params.brick.position.x,
-        y: Math.random() * params.brick.height + params.brick.position.y
-      });
-    }
+    // for (let i = 0; i < numPoints / 2; i++) {
+    //   sites.push({
+    //     x: Math.random() * params.brick.width + params.brick.position.x,
+    //     y: Math.random() * params.brick.height + params.brick.position.y
+    //   });
+    // }
 
     // TODO: merge random neighbors to get more of a shattering effect
     let results = voronoi.compute(sites, box).cells;

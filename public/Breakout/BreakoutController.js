@@ -42,7 +42,7 @@ export default class BreakoutController extends GameController {
     });
 
     this.game.onStateChange(Game.STATE.DONE, () => {
-      this.returnToMain();
+      //this.returnToMain();
     });
 
     this.menus.hideAll();

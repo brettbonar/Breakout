@@ -13,6 +13,7 @@ import FlatRenderingEngine from "../Engine/Rendering/FlatRenderingEngine.js"
 import ParticleEngine from "../Engine/Effects/ParticleEngine.js"
 import { MOVEMENT_TYPE } from "../Engine/Physics/PhysicsConstants.js";
 import BrickDestroyedEffect from "./Effects/BrickDestroyedEffect.js";
+import GameOverEffect from "./Effects/GameOverEffect.js";
 
 export default class Breakout extends Game {
   constructor(params) {
@@ -135,8 +136,8 @@ export default class Breakout extends Game {
     this.stateFunctions[Game.STATE.PAUSED].update = _.noop;//(elapsedTime) => this._update(elapsedTime);
     this.stateFunctions[Game.STATE.PAUSED].render = _.noop;//(elapsedTime) => this._render(elapsedTime);
     this.stateFunctions[Game.STATE.DONE].processInput = _.noop;
-    this.stateFunctions[Game.STATE.DONE].update = _.noop;//(elapsedTime) => this._update(elapsedTime);
-    this.stateFunctions[Game.STATE.DONE].render = _.noop;//(elapsedTime) => this._render(elapsedTime);
+    this.stateFunctions[Game.STATE.DONE].update = (elapsedTime) => this.updateDone(elapsedTime);
+    this.stateFunctions[Game.STATE.DONE].render = (elapsedTime) => this.renderDone(elapsedTime);
     this.stateFunctions[Game.STATE.INITIALIZING].update = _.noop;//(elapsedTime) => this._update(elapsedTime);
     this.stateFunctions[Game.STATE.INITIALIZING].render = _.noop;//(elapsedTime) => this._render(elapsedTime);
   }
@@ -422,10 +423,15 @@ export default class Breakout extends Game {
     _.remove(this.gameState.balls, ball);
 
     if (this.gameState.balls.length === 0) {
-      this.gameState.paddlesLeft.pop();
-      if (this.gameState.paddlesLeft < 0) {
+      if (this.gameState.paddlesLeft.length === 0) {
         this.transitionState(Game.STATE.DONE);
+        this.particleEngine.addEffect(new GameOverEffect({
+          canvas: this.canvas,
+          context: this.context,
+          duration: 10000
+        }));
       } else {
+        this.gameState.paddlesLeft.pop();
         // Start a new ball
         this.gameState.countdown = 3000;
         this.gameState.paddleBricksDestroyed = 0;
@@ -441,6 +447,13 @@ export default class Breakout extends Game {
         });
       }
     }
+
+    this.transitionState(Game.STATE.DONE);
+    this.particleEngine.addEffect(new GameOverEffect({
+      canvas: this.canvas,
+      context: this.context,
+      duration: 5000
+    }));
   }
 
   handleCollisions(collisions) {
@@ -489,6 +502,15 @@ export default class Breakout extends Game {
       objs = objs.concat(row);
     }
     return objs.concat(this.gameState.balls).concat([this.gameState.paddle]).concat(this.gameState.walls);
+  }
+
+  updateDone(elapsedTime) {
+    this.particleEngine.update(elapsedTime);
+  }
+
+  renderDone(elapsedTime) {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.particleEngine.render(elapsedTime);
   }
   
   _update(elapsedTime) {
