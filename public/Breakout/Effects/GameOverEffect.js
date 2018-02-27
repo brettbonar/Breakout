@@ -68,8 +68,8 @@ export default class GameOverEffect extends Effect {
         center: this.getCenter(cell),
         rotation: 0,
         spin: _.random(-3.5, 3.5, true),
-        speed: _.random(0.55, 0.75, true),
-        delay: _.random(0, 3000),
+        speed: _.random(0.75, 1, true),
+        delay: _.random(1000, 2000),
         scale: 1,
         xdiff: 0,
         ydiff: 0
@@ -94,8 +94,8 @@ export default class GameOverEffect extends Effect {
       }
       context.strokeStyle = "grey";
       context.fillStyle = "black";
-      context.lineWidth = 1;
-      
+      context.lineWidth = 2;
+
       context.beginPath();
       context.moveTo(piece.halfedges[0].getStartpoint().x + piece.xdiff,
         piece.halfedges[0].getStartpoint().y + piece.ydiff);
@@ -103,10 +103,9 @@ export default class GameOverEffect extends Effect {
         context.lineTo(edge.getEndpoint().x + piece.xdiff, edge.getEndpoint().y + piece.ydiff);
       }
   
-      //context.fill();
+      context.stroke();
       context.clip();
       //context.scale(1, piece.scale);
-      context.stroke();
       context.fillRect(0, 0, this.canvas.width, this.canvas.height);
       
       context.translate(piece.xdiff, piece.ydiff);
@@ -136,17 +135,6 @@ export default class GameOverEffect extends Effect {
   }
 
   render(context) {
-    Text.draw(this.context, {
-      fillStyle: "magenta",
-      strokeStyle: "white",
-      font: "240px Trebuchet MS",
-      text: "GAME OVER",
-      textAlign: "center",
-      position: {
-        x: this.canvas.width / 2,
-        y: this.canvas.height / 2
-      }
-    });
     this.drawPieces(context);
     //this.drawParticles(context);
   }
@@ -158,7 +146,7 @@ export default class GameOverEffect extends Effect {
       if (this.currentTime < piece.delay) continue;
       piece.rotation += (elapsedTime / 50) * piece.spin;
       let spin = piece.scale > 0 ? -1 : 1;
-      piece.scale -= (elapsedTime / 5000) * piece.spin * spin;
+      //piece.scale -= (elapsedTime / 5000) * piece.spin * spin;
       let xdiff = elapsedTime * piece.speed * piece.direction.x;
       let ydiff = elapsedTime * piece.speed * piece.direction.y;
       piece.xdiff += xdiff;

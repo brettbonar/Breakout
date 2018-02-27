@@ -113,8 +113,8 @@ export default class Breakout extends Game {
       // TODO: make this better
       clearedRows: [],
       paddlesLeft: [],
-      walls: [],
-      background: new Background(this.canvas, this.gameSettings)
+      walls: []
+      //background: new Background(this.canvas, this.gameSettings)
     };
     
     this.initialize({
@@ -136,8 +136,11 @@ export default class Breakout extends Game {
     this.stateFunctions[Game.STATE.PAUSED].update = _.noop;//(elapsedTime) => this._update(elapsedTime);
     this.stateFunctions[Game.STATE.PAUSED].render = _.noop;//(elapsedTime) => this._render(elapsedTime);
     this.stateFunctions[Game.STATE.DONE].processInput = _.noop;
-    this.stateFunctions[Game.STATE.DONE].update = (elapsedTime) => this.updateDone(elapsedTime);
-    this.stateFunctions[Game.STATE.DONE].render = (elapsedTime) => this.renderDone(elapsedTime);
+    this.stateFunctions[Game.STATE.DONE].update = (elapsedTime) => this._update(elapsedTime);
+    this.stateFunctions[Game.STATE.DONE].render = (elapsedTime) => this._render(elapsedTime);
+    this.stateFunctions[Game.STATE.GAME_OVER].processInput = _.noop;
+    this.stateFunctions[Game.STATE.GAME_OVER].update = (elapsedTime) => this.updateGameOver(elapsedTime);
+    this.stateFunctions[Game.STATE.GAME_OVER].render = (elapsedTime) => this.renderGameOver(elapsedTime);
     this.stateFunctions[Game.STATE.INITIALIZING].update = _.noop;//(elapsedTime) => this._update(elapsedTime);
     this.stateFunctions[Game.STATE.INITIALIZING].render = _.noop;//(elapsedTime) => this._render(elapsedTime);
   }
@@ -332,7 +335,7 @@ export default class Breakout extends Game {
           gameSettings: this.gameSettings,
           brick: brick,
           ball: ball,
-          duration: 2000
+          duration: 5000
         }));
         ball.setColor(brick.color);
       
@@ -362,7 +365,7 @@ export default class Breakout extends Game {
             this.gameState.combo += 25;
             this.gameState.intervalCounter += 25;
             if (this.gameState.clearedRows.length === this.gameSettings.rows) {
-              this.transitionState(Game.STATE.DONE);
+              this.win();
               this.gameState.maxCombo = Math.max(this.gameState.maxCombo, this.gameState.combo);
             }
           }
@@ -425,11 +428,14 @@ export default class Breakout extends Game {
   }
 
   gameOver() {
-    this.transitionState(Game.STATE.DONE);
+    super.quit();
+    this.transitionState(Game.STATE.GAME_OVER);
     this.currentTime = 0;
+    this.particleEngine.effects.length = 0;
     this.particleEngine.addEffect(new GameOverEffect({
       canvas: this.canvas,
       context: this.context,
+      gameSettings: this.gameSettings,
       duration: 5000
     }));
   }
@@ -457,8 +463,13 @@ export default class Breakout extends Game {
         });
       }
     }
-
     this.gameOver();
+  }
+
+  win() {
+    super.quit();
+    this.transitionState(Game.STATE.DONE);
+    this.menus.transition("RETRY");
   }
 
   handleCollisions(collisions) {
@@ -470,9 +481,11 @@ export default class Breakout extends Game {
       }
     }
 
-    for (const ball of this.gameState.balls) {
-      if (ball.position.y - ball.radius > this.gameSettings.playArea.bottom.y + this.gameSettings.playArea.bottomBuffer) {
-        this.killBall(ball);
+    if (this.state !== Game.STATE.DONE) {
+      for (const ball of this.gameState.balls) {
+        if (ball.position.y - ball.radius > this.gameSettings.playArea.bottom.y + this.gameSettings.playArea.bottomBuffer) {
+          this.killBall(ball);
+        }
       }
     }
   }
@@ -509,16 +522,40 @@ export default class Breakout extends Game {
     return objs.concat(this.gameState.balls).concat([this.gameState.paddle]).concat(this.gameState.walls);
   }
 
-  updateDone(elapsedTime) {
+  updateGameOver(elapsedTime) {
     this.particleEngine.update(elapsedTime);
   }
 
-  renderDone(elapsedTime) {
+  renderGameOver(elapsedTime) {
     this.currentTime += elapsedTime;
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.context.fillStyle = "black";
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    Text.draw(this.context, {
+      fillStyle: "magenta",
+      strokeStyle: "white",
+      font: "240px Trebuchet MS",
+      text: "GAME OVER",
+      textAlign: "center",
+      position: {
+        x: this.canvas.width / 2,
+        y: this.canvas.height / 2
+      }
+    });
+    Text.draw(this.context, {
+      text: "Score: " + this.gameState.score,
+      fillStyle: "magenta",
+      strokeStyle: "white",
+      font: "60px Trebuchet MS",
+      textAlign: "center",
+      position: {
+        x: this.canvas.width / 2,
+        y: this.canvas.height / 2 + this.context.measureText("m").width / 2
+      }
+    });
     this.particleEngine.render(elapsedTime);
-    if (this.currentTime >= 5000) {
-      this.menus.transition("GAME_OVER");
+    if (this.currentTime >= 3000) {
+      this.menus.transition("RETRY");
     }
   }
   
@@ -541,7 +578,7 @@ export default class Breakout extends Game {
 
     this.particleEngine.update(elapsedTime);
 
-    this.gameState.background.update(elapsedTime);
+    //this.gameState.background.update(elapsedTime);
   }
 
   _render(elapsedTime) {
@@ -549,7 +586,11 @@ export default class Breakout extends Game {
 
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.fillStyle = "black";
-    //this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.context.strokeStyle = "magenta";
+    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.context.strokeRect(this.gameSettings.playArea.top.x, this.gameSettings.playArea.top.y,
+      this.gameSettings.playArea.width, this.gameSettings.playArea.height);
+      
     this.drawScore();
     this.renderingEngine.render(this.getUIRenderObjects(), elapsedTime);
 
@@ -579,9 +620,18 @@ export default class Breakout extends Game {
         textAlign: "center",
         position: this.gameSettings.playArea.center
       });
+    } else if (this.state === Game.STATE.DONE) {
+      Text.draw(this.context, {
+        fillStyle: "magenta",
+        strokeStyle: "white",
+        font: "240px Trebuchet MS",
+        text: "YOU WIN",
+        textAlign: "center",
+        position: this.gameSettings.playArea.center
+      });
     }
 
-    this.gameState.background.render();
+    //this.gameState.background.render();
 
     this.context.restore();
   }

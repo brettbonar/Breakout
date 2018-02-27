@@ -83,7 +83,7 @@ export default class BrickDestroyedEffect extends Effect {
   }
 
   getContactBox(params, contactPoint) {
-    let contactBoxDimen = params.brick.height / 2;
+    let contactBoxDimen = params.brick.height * 3/4;
     let contactBox = {
       ul: {
         x: _.clamp(contactPoint.x - contactBoxDimen, params.brick.position.x, params.brick.position.x + params.brick.width),
@@ -146,13 +146,25 @@ export default class BrickDestroyedEffect extends Effect {
       y: _.clamp(params.ball.position.y, params.brick.position.y, params.brick.position.y + params.brick.height)
     };
     let contactBox = this.getContactBox(params, contactPoint);
+    // for (let i = 0; i < numPoints / 2; i++) {
+    //   sites.push({
+    //     x: Math.random() * (contactBox.lr.x - contactBox.ul.x) + contactBox.ul.x,
+    //     y: Math.random() * (contactBox.lr.y - contactBox.ul.y) + contactBox.ul.y
+    //   });
+    // }
+    // for (let i = 0; i < numPoints / 2; i++) {
+    //   sites.push({
+    //     x: Math.random() * params.brick.width + params.brick.position.x,
+    //     y: Math.random() * params.brick.height + params.brick.position.y
+    //   });
+    // }
     for (let i = 0; i < numPoints; i++) {
       sites.push({
         x: Math.random() * (contactBox.lr.x - contactBox.ul.x) + contactBox.ul.x,
         y: Math.random() * (contactBox.lr.y - contactBox.ul.y) + contactBox.ul.y
       });
     }
-    // for (let i = 0; i < numPoints / 2; i++) {
+    // for (let i = 0; i < numPoints; i++) {
     //   sites.push({
     //     x: Math.random() * params.brick.width + params.brick.position.x,
     //     y: Math.random() * params.brick.height + params.brick.position.y
@@ -176,7 +188,7 @@ export default class BrickDestroyedEffect extends Effect {
       let center = this.getCenter(cell);
       return Object.assign(cell, {
         direction: this.normalizeDirection({
-          x: cell.site.x - params.ball.position.x,
+          x: (cell.site.x - params.ball.position.x) / 4,
           y: cell.site.y - params.ball.position.y
         }),
         // direction: this.normalizeDirection({
@@ -186,7 +198,8 @@ export default class BrickDestroyedEffect extends Effect {
         center: center,
         rotation: 0,
         spin: spin * _.random(1, 5, true),
-        speed: 0.1,
+        speed: 0.3,
+        acceleration: { x: 0, y: 0.1 },
         xdiff: 0,
         ydiff: 0
       });
@@ -215,7 +228,7 @@ export default class BrickDestroyedEffect extends Effect {
   drawPieces(context) {
     for (const piece of this.pieces) {
       context.save();
-      context.globalAlpha = Math.max((this.duration - this.currentTime) / this.duration, 0);
+      //context.globalAlpha = Math.max((this.duration - this.currentTime) / this.duration, 0);
 
       if (piece.rotation) {
         context.translate(piece.center.x, piece.center.y);
@@ -283,6 +296,7 @@ export default class BrickDestroyedEffect extends Effect {
 
     for (const piece of this.pieces) {
       piece.rotation += (elapsedTime / 50) * piece.spin;
+      piece.direction.y += (elapsedTime / 50) * piece.acceleration.y;
       let xdiff = elapsedTime * piece.speed * piece.direction.x;
       let ydiff = elapsedTime * piece.speed * piece.direction.y;
       piece.xdiff += xdiff;

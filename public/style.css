@@ -46,10 +46,10 @@ hr {
   position: absolute;
   left: 0;
   top: 0;
-  width: calc(100vw - 14px);
-  height: calc(50vw - 7px);
+  width: calc(100vw);
+  height: calc(50vw);
 }
-
+/* 
 .canvas-width-max {
   min-width: 1000px;
   min-height: 500px;
@@ -62,7 +62,7 @@ hr {
   min-height: 500px;
   width: calc(200vh - 14px);
   height: calc(100vh - 7px);
-}
+} */
 
 .background {
   z-index: -999;
@@ -70,36 +70,44 @@ hr {
 
 .menu {
   z-index: 9999;
-  padding-top: 50px;
-  width: 50%;
-  margin: 0 auto;
-  font-size: 1.5vw;
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* padding-top: 50px; */
+  /* padding-top: calc((50vw - 7px) / 4); */
+  /* width: 50%; */
+  /* margin: 0 auto; */
+  width: calc(100vw);
+  height: calc(50vw);
+  /* font-size: 1.5vw; */
 }
 
 .controls {
-  margin: auto;
-  width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
   font-size: 2vw;
 }
 
+.menu .controls {
+  height: 50%;
+}
+
 .sub-menu {
-  display: none;
-}
-
-.pause-menu {
-  top: 150px;
+  margin: auto;
   width: 50%;
-  margin: 0 auto;
-  position: relative;
 }
 
-.high-scores {
-  flex: 1;
-  overflow-y: auto;
-  padding: 5px;
+.sub-menu.pause-menu {
+  justify-content: flex-end;
+}
+
+.sub-menu.retry-menu {
+  height: 90%;
+  justify-content: flex-end;
+}
+
+.credits {
+  font-size: calc(5px + 1vw);
 }
 
 .high-scores-list {
@@ -111,17 +119,17 @@ hr {
 
 .high-scores-list tr {
   text-align: center;
-  font-size: 2.5vw;
+  font-size: calc(15px + 1vw);
 }
 
 .high-scores-list td {
   text-align: center;
-  font-size: 2vw;
+  font-size: calc(10px + 1vw);
 }
 
 .control {
   font-family: "Trebuchet MS";
-  flex: 1;
+  /* flex: 1; */
   margin: 10px;
   /* Button style */
   border: 1px solid #ffffff;

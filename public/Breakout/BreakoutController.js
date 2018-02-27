@@ -46,8 +46,10 @@ export default class BreakoutController extends GameController {
   }
   
   returnToMain() {
-    this.game = new BreakoutDemo({ canvas: document.getElementById("canvas-main") });
-    this.game.start();
+    if (this.game instanceof Breakout) {
+      this.game = new BreakoutDemo({ canvas: document.getElementById("canvas-main") });
+      this.game.start();
+    }
   }
 }
 

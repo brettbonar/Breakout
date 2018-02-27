@@ -4,6 +4,7 @@ const STATE = {
   PAUSED: "paused",
   PLAYING: "playing",
   DONE: "done",
+  GAME_OVER: "gameOver",
   INITIALIZING: "initializing"
 };
 
@@ -21,7 +22,7 @@ export default class Game {
     };
     //this.STATE = STATE;
     this.EVENT = EVENT;
-    this._state = STATE.INITIALIZING;
+    this.state = STATE.INITIALIZING;
 
     this.inputEvents = [];
     this.eventHandlers = {};
@@ -30,13 +31,13 @@ export default class Game {
 
     this.transitionStateCbs = {};
     this.stateFunctions = {};
-    _.each(STATE, (state) => {
-      this.stateFunctions[state] = {
+    _.each(STATE, (s) => {
+      this.stateFunctions[s] = {
         processInput: (elapsedTime) => this.processInputImpl(elapsedTime),
         update: _.noop,
         render: _.noop
       };
-      this.transitionStateCbs[state] = [];
+      this.transitionStateCbs[s] = [];
     });
 
     this.mouseMoveListener = (event) => {
@@ -95,11 +96,11 @@ export default class Game {
   }
 
   update(elapsedTime) {
-    this.stateFunctions[this._state].update(elapsedTime);
+    this.stateFunctions[this.state].update(elapsedTime);
   }
 
   render(elapsedTime) {
-    this.stateFunctions[this._state].render(elapsedTime);
+    this.stateFunctions[this.state].render(elapsedTime);
   }
 
   // Input and events
@@ -149,10 +150,9 @@ export default class Game {
   }
 
   processInput(elapsedTime) {
-    this.stateFunctions[this._state].processInput(elapsedTime);
+    this.stateFunctions[this.state].processInput(elapsedTime);
   }
 
-  // Changing game state
   quit() {
     this.canvas.removeEventListener("mousemove", this.mouseMoveListener);
     this.canvas.removeEventListener("keyup", this.keyEventListener);
@@ -160,8 +160,8 @@ export default class Game {
     if (this._settings.requestPointerLock) {
       document.removeEventListener("pointerlockchange", this.pointerLockListener, false);
       document.removeEventListener("mozpointerlockchange", this.pointerLockListener, false);
+      document.exitPointerLock();
     }
-    this.transitionState(STATE.DONE);
   }
 
   start() {
@@ -169,6 +169,7 @@ export default class Game {
       document.addEventListener("pointerlockchange", this.pointerLockListener, false);
       document.addEventListener("mozpointerlockchange", this.pointerLockListener, false);
       this.canvas.requestPointerLock = this.canvas.requestPointerLock || this.canvas.mozRequestPointerLock;
+      document.exitPointerLock = document.exitPointerLock || document.mozExitPointerLock;
       this.canvas.requestPointerLock();
     } else {
       this.canvas.addEventListener("mousemove", this.mouseMoveListener);
@@ -191,7 +192,7 @@ export default class Game {
   }
 
   transitionState(state) {
-    this._state = state;
+    this.state = state;
     for (const cb of this.transitionStateCbs[state]) {
       cb(state);
     }
