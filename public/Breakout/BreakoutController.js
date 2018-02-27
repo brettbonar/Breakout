@@ -41,17 +41,13 @@ export default class BreakoutController extends GameController {
       columns: 14
     });
 
-    this.game.onStateChange(Game.STATE.DONE, () => {
-      //this.returnToMain();
-    });
-
     this.menus.hideAll();
     this.start();
   }
-
+  
   returnToMain() {
-    this.menus.transition("MAIN");
     this.game = new BreakoutDemo({ canvas: document.getElementById("canvas-main") });
+    this.game.start();
   }
 }
 

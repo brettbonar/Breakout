@@ -1,4 +1,5 @@
 import Effect from "../../Engine/Effects/Effect.js"
+import Text from "../../Graphics/Text.js"
 
 export default class GameOverEffect extends Effect {
   constructor(params) {
@@ -38,18 +39,18 @@ export default class GameOverEffect extends Effect {
     };
     let sites = [];
     let numPoints = 100;
-    // for (let i = 0; i < numPoints; i++) {
-    //   sites.push({
-    //     x: Math.random() * box.xr / 2 + box.xr / 4,
-    //     y: Math.random() * box.yb / 2 + box.yb / 4
-    //   });
-    // }
     for (let i = 0; i < numPoints; i++) {
       sites.push({
-        x: Math.random() * this.canvas.width,
-        y: Math.random() * this.canvas.height
+        x: Math.random() * box.xr * 3/4 + box.xr / 8,
+        y: Math.random() * box.yb * 3/4 + box.yb / 8
       });
     }
+    // for (let i = 0; i < numPoints; i++) {
+    //   sites.push({
+    //     x: Math.random() * this.canvas.width,
+    //     y: Math.random() * this.canvas.height
+    //   });
+    // }
 
     // TODO: merge random neighbors to get more of a shattering effect
     let results = voronoi.compute(sites, box).cells;
@@ -68,7 +69,8 @@ export default class GameOverEffect extends Effect {
         rotation: 0,
         spin: _.random(-3.5, 3.5, true),
         speed: _.random(0.55, 0.75, true),
-        delay: _.random(0, 1000),
+        delay: _.random(0, 3000),
+        scale: 1,
         xdiff: 0,
         ydiff: 0
       });
@@ -91,6 +93,7 @@ export default class GameOverEffect extends Effect {
         context.translate(-piece.center.x, -piece.center.y);
       }
       context.strokeStyle = "grey";
+      context.fillStyle = "black";
       context.lineWidth = 1;
       
       context.beginPath();
@@ -101,34 +104,49 @@ export default class GameOverEffect extends Effect {
       }
   
       //context.fill();
+      context.clip();
+      //context.scale(1, piece.scale);
       context.stroke();
+      context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      
+      context.translate(piece.xdiff, piece.ydiff);
+      context.drawImage(this.image, 0, 0, this.canvas.width, this.canvas.height);
+
       context.closePath();
       context.restore();
 
       // Draw image
-      context.save();
-      if (piece.rotation) {
-        context.translate(piece.center.x, piece.center.y);
-        context.rotate((piece.rotation * Math.PI) / 180);
-        context.translate(-piece.center.x, -piece.center.y);
-      }
-      context.beginPath();
-      context.moveTo(piece.halfedges[0].getStartpoint().x + piece.xdiff,
-        piece.halfedges[0].getStartpoint().y + piece.ydiff);
-      for (const edge of piece.halfedges) {
-        context.lineTo(edge.getEndpoint().x + piece.xdiff, edge.getEndpoint().y + piece.ydiff);
-      }
-      context.clip();
-      context.translate(piece.xdiff, piece.ydiff);
-      context.drawImage(this.image, 0, 0, this.canvas.width, this.canvas.height);
+      // context.save();
+      // if (piece.rotation) {
+      //   context.translate(piece.center.x, piece.center.y);
+      //   context.rotate((piece.rotation * Math.PI) / 180);
+      //   context.translate(-piece.center.x, -piece.center.y);
+      // }
+      // context.beginPath();
+      // context.moveTo(piece.halfedges[0].getStartpoint().x + piece.xdiff,
+      //   piece.halfedges[0].getStartpoint().y + piece.ydiff);
+      // for (const edge of piece.halfedges) {
+      //   context.lineTo(edge.getEndpoint().x + piece.xdiff, edge.getEndpoint().y + piece.ydiff);
+      // }
   
-      context.closePath();
+      // context.closePath();
 
-      context.restore();
+      // context.restore();
     }
   }
 
   render(context) {
+    Text.draw(this.context, {
+      fillStyle: "magenta",
+      strokeStyle: "white",
+      font: "240px Trebuchet MS",
+      text: "GAME OVER",
+      textAlign: "center",
+      position: {
+        x: this.canvas.width / 2,
+        y: this.canvas.height / 2
+      }
+    });
     this.drawPieces(context);
     //this.drawParticles(context);
   }
@@ -139,6 +157,8 @@ export default class GameOverEffect extends Effect {
     for (const piece of this.pieces) {
       if (this.currentTime < piece.delay) continue;
       piece.rotation += (elapsedTime / 50) * piece.spin;
+      let spin = piece.scale > 0 ? -1 : 1;
+      piece.scale -= (elapsedTime / 5000) * piece.spin * spin;
       let xdiff = elapsedTime * piece.speed * piece.direction.x;
       let ydiff = elapsedTime * piece.speed * piece.direction.y;
       piece.xdiff += xdiff;

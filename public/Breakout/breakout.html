@@ -1,4 +1,4 @@
-<gui-menu gui-start class="menu" id="MAIN">
+<gui-menu gui-start class="menu" id="MAIN" gui-on-show="returnToMain()">
   <h1 class="title">BreakOut</h1>
   <div class="controls">
     <button class="control" gui-click="newGame()">New Game</button>
@@ -33,6 +33,13 @@
 <gui-menu class="menu" id="PAUSE">
   <div id="pause-menu" class="controls pause-menu">
     <button class="control" gui-click="game.resume()">Resume</button>
+    <button class="control" gui-click="game.quit()">Quit</button>
+  </div>
+</gui-menu>
+
+<gui-menu class="menu" id="GAME_OVER">
+  <div id="pause-menu" class="controls pause-menu">
+    <button class="control" gui-click="newGame()">Retry</button>
     <button class="control" gui-click="game.quit()">Quit</button>
   </div>
 </gui-menu>

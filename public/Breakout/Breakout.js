@@ -158,6 +158,11 @@ export default class Breakout extends Game {
     }, params)));
   }
 
+  quit() {
+    super.quit();
+    this.menus.transition("MAIN");
+  }
+
   // TODO: put this outside?
   pause() {
     this.menus.transition("PAUSE");
@@ -419,17 +424,22 @@ export default class Breakout extends Game {
     // sound.play();
   }
 
+  gameOver() {
+    this.transitionState(Game.STATE.DONE);
+    this.currentTime = 0;
+    this.particleEngine.addEffect(new GameOverEffect({
+      canvas: this.canvas,
+      context: this.context,
+      duration: 5000
+    }));
+  }
+
   killBall(ball) {
     _.remove(this.gameState.balls, ball);
 
     if (this.gameState.balls.length === 0) {
       if (this.gameState.paddlesLeft.length === 0) {
-        this.transitionState(Game.STATE.DONE);
-        this.particleEngine.addEffect(new GameOverEffect({
-          canvas: this.canvas,
-          context: this.context,
-          duration: 10000
-        }));
+        this.gameOver();
       } else {
         this.gameState.paddlesLeft.pop();
         // Start a new ball
@@ -448,12 +458,7 @@ export default class Breakout extends Game {
       }
     }
 
-    this.transitionState(Game.STATE.DONE);
-    this.particleEngine.addEffect(new GameOverEffect({
-      canvas: this.canvas,
-      context: this.context,
-      duration: 5000
-    }));
+    this.gameOver();
   }
 
   handleCollisions(collisions) {
@@ -509,8 +514,12 @@ export default class Breakout extends Game {
   }
 
   renderDone(elapsedTime) {
+    this.currentTime += elapsedTime;
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.particleEngine.render(elapsedTime);
+    if (this.currentTime >= 5000) {
+      this.menus.transition("GAME_OVER");
+    }
   }
   
   _update(elapsedTime) {
