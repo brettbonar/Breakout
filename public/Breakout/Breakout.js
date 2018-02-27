@@ -463,7 +463,6 @@ export default class Breakout extends Game {
         });
       }
     }
-    this.gameOver();
   }
 
   win() {
