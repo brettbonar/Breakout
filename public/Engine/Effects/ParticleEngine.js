@@ -7,6 +7,9 @@ export default class EffectsEngine {
   update(elapsedTime) {
     for (const effect of this.effects) {
       effect.update(elapsedTime);
+      if (effect.done && _.isFunction(effect.onDone)) {
+        effect.onDone(this);
+      }
     }
 
     _.remove(this.effects, "done");

@@ -12,6 +12,9 @@ export default class CircleRenderer extends Renderer {
     context.arc(object.position.x, object.position.y, object.radius, 0, 2 * Math.PI);
     context.closePath();
 
+    context.shadowColor = this.shadowColor;
+    context.shadowBlur = this.shadowBlur;
+
     if (this.fillStyle) {
       context.fillStyle = this.fillStyle;
       context.fill();

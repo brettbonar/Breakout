@@ -98,6 +98,34 @@ export default class GameObject {
     this.renderer.render(context, this, elapsedTime);
   }
 
+  get left() {
+    return {
+      x: this.boundingBox.box.ul.x,
+      y: this.center.y
+    };
+  }
+
+  get right() {
+    return {
+      x: this.boundingBox.box.lr.x,
+      y: this.center.y
+    };
+  }
+
+  get top() {
+    return {
+      x: this.center.x,
+      y: this.boundingBox.box.ul.y
+    };
+  }
+
+  get bottom() {
+    return {
+      x: this.center.x,
+      y: this.boundingBox.box.lr.y
+    };
+  }
+
   get center() {
     return this.getCenterPoint(this.dimensions);
 

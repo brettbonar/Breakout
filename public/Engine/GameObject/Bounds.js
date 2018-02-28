@@ -108,6 +108,9 @@ export default class Bounds {
         this.box.lr.y > box.ul.y;
     } else if (_.isArray(target)) { // Line [{ x, y }, { x, y }]
       return _.some(this.lines, (line) => this.intersectsLine(line, target));
+    } else if (!_.isUndefined(target.x) && !_.isUndefined(target.y)) { // Point { x, y }
+      return target.x >= this.box.ul.x && target.x <= this.box.lr.x &&
+        target.y >= this.box.ul.y && target.y <= this.box.lr.y;
     }
 
     return false;

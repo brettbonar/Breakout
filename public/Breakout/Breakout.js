@@ -14,6 +14,8 @@ import ParticleEngine from "../Engine/Effects/ParticleEngine.js"
 import { MOVEMENT_TYPE } from "../Engine/Physics/PhysicsConstants.js";
 import BrickDestroyedEffect from "./Effects/BrickDestroyedEffect.js";
 import GameOverEffect from "./Effects/GameOverEffect.js";
+import AbsorbEffect from "./Effects/AbsorbEffect.js";
+import AbsorbEffectDemo from "./Effects/AbsorbEffectDemo.js";
 
 export default class Breakout extends Game {
   constructor(params) {
@@ -46,7 +48,7 @@ export default class Breakout extends Game {
         y: this.canvas.height / 2
       },
       width: this.canvas.width,
-      height: this.canvas.height - uiAreaSize * scale - bottomBuffer
+      height: this.canvas.height - uiAreaSize * 2 - bottomBuffer
     };
 
     playArea.bounds = {
@@ -337,10 +339,15 @@ export default class Breakout extends Game {
           ball: ball,
           duration: 5000
         }));
-        ball.setColor(brick.color);
+        this.particleEngine.addEffect(new AbsorbEffect({
+          gameSettings: this.gameSettings,
+          brick: brick,
+          ball: ball
+        }));
+        //ball.setColor(brick.color);
       
         // Make sure text doesn't render out of bounds
-        this.gameState.score += brick.value;
+        //this.gameState.score += brick.value;
         this.gameState.combo += brick.value;
         this.gameState.intervalCounter += brick.value;
         this.gameState.bricksDestroyed += 1;
@@ -366,7 +373,6 @@ export default class Breakout extends Game {
             this.gameState.intervalCounter += 25;
             if (this.gameState.clearedRows.length === this.gameSettings.rows) {
               this.win();
-              this.gameState.maxCombo = Math.max(this.gameState.maxCombo, this.gameState.combo);
             }
           }
         }
@@ -402,7 +408,11 @@ export default class Breakout extends Game {
   }
 
   hitPaddle(paddle, ball) {
-    paddle.setColor(ball.color);
+    paddle.impact(ball);
+    if (this.state !== Game.STATE.DONE) {
+      this.gameState.score += ball.score;
+      ball.score = 0;
+    }
 
     if (this.gameState.combo >= this.gameSettings.comboThreshold) {
       let start = {
@@ -432,6 +442,12 @@ export default class Breakout extends Game {
     this.transitionState(Game.STATE.GAME_OVER);
     this.currentTime = 0;
     this.particleEngine.effects.length = 0;
+    this.particleEngine.addEffect(new AbsorbEffectDemo({
+      canvas: this.canvas,
+      context: this.context,
+      brickColors: this.gameSettings.brickColors,
+      numOrbs: this.gameState.score / 10
+    }));
     this.particleEngine.addEffect(new GameOverEffect({
       canvas: this.canvas,
       context: this.context,
@@ -466,6 +482,18 @@ export default class Breakout extends Game {
   }
 
   win() {
+    for (const ball of this.gameState.balls) {
+      this.gameState.score += ball.score;
+      ball.score = 0;
+    }
+    for (const effect of this.particleEngine.effects) {
+      if (effect instanceof AbsorbEffect) {
+        this.gameState.score += 1;
+      }
+    }
+    
+    this.gameState.maxCombo = Math.max(this.gameState.maxCombo, this.gameState.combo);
+
     super.quit();
     this.transitionState(Game.STATE.DONE);
     this.menus.transition("RETRY");
@@ -482,7 +510,7 @@ export default class Breakout extends Game {
 
     if (this.state !== Game.STATE.DONE) {
       for (const ball of this.gameState.balls) {
-        if (ball.position.y - ball.radius > this.gameSettings.playArea.bottom.y + this.gameSettings.playArea.bottomBuffer) {
+        if (ball.position.y > this.gameSettings.playArea.bottom.y + this.gameSettings.playArea.bottomBuffer) {
           this.killBall(ball);
         }
       }
@@ -596,7 +624,7 @@ export default class Breakout extends Game {
     // Clip canvas for remaining rendering
     this.context.beginPath(); 
     this.context.rect(this.gameSettings.playArea.top.x, this.gameSettings.playArea.top.y,
-      this.gameSettings.playArea.width, this.gameSettings.playArea.height + this.gameSettings.playArea.bottomBuffer);
+      this.gameSettings.playArea.width, this.gameSettings.playArea.height);
     this.context.clip();
     
     this.context.fillStyle = "black";

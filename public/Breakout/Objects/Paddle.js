@@ -8,15 +8,17 @@ export default class Paddle extends GameObject {
     this.renderer = new RectangleRenderer({
       fillStyle: params.color,
       shadowColor: params.color,
-      shadowBlur: params.shadowBlur
+      shadowBlur: 0
     });
     this.physics.movementType = MOVEMENT_TYPE.FIXED;
     this.physics.surfaceType = SURFACE_TYPE.REFLECTIVE;
   }
 
-  setColor(color) {
-    this.color = color;
-    this.renderer.fillStyle = color;
-    this.renderer.shadowColor = color;
+  impact(ball) {
+    this.color = ball.color;
+    this.renderer.fillStyle = ball.color;
+    this.renderer.shadowColor = ball.color;
+    this.renderer.shadowBlur += ball.renderer.shadowBlur;
+    ball.renderer.shadowBlur = 0;
   }
 }

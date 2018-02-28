@@ -134,6 +134,9 @@ export default class GameOverEffect extends Effect {
     }
   }
 
+  // TODO: falling bricks that break on GAME OVER text (or randomly in air or on ground)
+  // TODO: partices come out of destroyed bricks
+
   render(context) {
     this.drawPieces(context);
     //this.drawParticles(context);

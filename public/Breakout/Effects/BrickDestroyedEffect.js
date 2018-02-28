@@ -4,6 +4,8 @@ export default class BrickDestroyedEffect extends Effect {
   constructor(params) {
     super(params);
     this.init(params);
+    // let sound = new Audio("Assets/Explosion58.wav");
+    // sound.play();
   }
   
   normalizeDirection(direction) {
@@ -16,7 +18,7 @@ export default class BrickDestroyedEffect extends Effect {
   }
 
   getContactBox(params, contactPoint) {
-    let contactBoxDimen = params.brick.height * 3/4;
+    let contactBoxDimen = params.brick.height * 2;
     let contactBox = {
       ul: {
         x: _.clamp(contactPoint.x - contactBoxDimen, params.brick.position.x, params.brick.position.x + params.brick.width),
@@ -119,20 +121,23 @@ export default class BrickDestroyedEffect extends Effect {
         spin = 1;
       }
       let center = this.getCenter(cell);
+      let direction = this.normalizeDirection({
+        x: (cell.site.x - params.ball.position.x) / 4,
+        y: cell.site.y - params.ball.position.y
+      });
+      direction.x *= params.ball.speed / 4;
+      direction.y *= params.ball.speed / 4;
       return Object.assign(cell, {
-        direction: this.normalizeDirection({
-          x: (cell.site.x - params.ball.position.x) / 4,
-          y: cell.site.y - params.ball.position.y
-        }),
         // direction: this.normalizeDirection({
         //   x: center.x - brickCenter.x,
         //   y: center.y - brickCenter.y
         // }),
+        direction: direction,
         center: center,
         rotation: 0,
         spin: spin * _.random(1, 5, true),
-        speed: 0.3,
-        acceleration: { x: 0, y: 0.1 },
+        speed: 1,//0.05 * params.ball.speed,
+        acceleration: { x: 0, y: 0.03 },
         xdiff: 0,
         ydiff: 0
       });

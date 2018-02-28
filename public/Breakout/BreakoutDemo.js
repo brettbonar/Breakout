@@ -2,15 +2,12 @@ import Brick from "./Objects/Brick.js"
 import Game from "../Engine/Game.js"
 import PhysicsEngine from "../Engine/Physics/PhysicsEngine.js"
 import FlatRenderingEngine from "../Engine/Rendering/FlatRenderingEngine.js"
+import ParticleEngine from "../Engine/Effects/ParticleEngine.js"
+import AbsorbEffectDemo from "./Effects/AbsorbEffectDemo.js";
 
 export default class BreakoutDemo extends Game {
   constructor(params) {
     super(params);
-    this.bricks = [];
-    this.physicsEngine = new PhysicsEngine();
-    this.renderingEngine = new FlatRenderingEngine({
-      context: this.context
-    });
     
     let scale = this.canvas.width / 1000;
     this.gameSettings = {
@@ -20,9 +17,24 @@ export default class BreakoutDemo extends Game {
       brickLineWidth: 2 * scale,
       brickShadowBlur: 15 * scale
     };
+
+    this.bricks = [];
+    this.physicsEngine = new PhysicsEngine();
+    this.renderingEngine = new FlatRenderingEngine({
+      context: this.context
+    });
+    this.particleEngine = new ParticleEngine({
+      context: this.context
+    });
+    this.particleEngine.addEffect(new AbsorbEffectDemo({
+      canvas: this.canvas,
+      context: this.context,
+      brickColors: this.gameSettings.brickColors
+    }));
+    
     this.previousTime = performance.now();
 
-    for (let i = 0; i < 8 * 14; i++) {
+    for (let i = 0; i < 75; i++) {
       this.bricks.push(new Brick({
         canvas: this.canvas,
         gameSettings: this.gameSettings,
@@ -45,6 +57,7 @@ export default class BreakoutDemo extends Game {
 
   update(elapsedTime) {
     this.physicsEngine.update(elapsedTime, this.bricks);
+    this.particleEngine.update(elapsedTime);
     for (const brick of this.bricks) {
       if (brick.position.y > this.canvas.height + brick.width) {
         brick.position.y = -brick.width;
@@ -61,6 +74,7 @@ export default class BreakoutDemo extends Game {
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.renderingEngine.render(this.bricks, elapsedTime);
+    this.particleEngine.render(elapsedTime);
 
     this.context.restore();
   }
