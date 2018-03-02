@@ -14,14 +14,29 @@ export default class Ball extends GameObject {
       shadowColor: params.color,
       shadowBlur: 0
     });
+    _.defaults(this, {
+      saturation: 10
+    });
 
     this.normalizeDirection();
+  }
+
+  render(context) {
+    super.render(context);
+    context.globalCompositeOperation = "saturation";
+    context.fillStyle = "hsl(0," + this.saturation + "%, 50%)";
+    context.beginPath();
+    context.arc(this.position.x, this.position.y, this.dimensions.radius, 0, 2 * Math.PI);
+    context.closePath();
+    context.fill();
+    context.globalCompositeOperation = "source-over";
   }
 
   setColor(color) {
     this.color = color;
     this.renderer.fillStyle = color;
     this.renderer.shadowColor = color;
+    this.saturation += 1;
   }
 
   addSpark(color) {

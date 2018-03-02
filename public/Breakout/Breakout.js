@@ -225,7 +225,8 @@ export default class Breakout extends Game {
           x: 10 * this.gameSettings.scale + i * (this.gameSettings.paddleWidth + 15),
           y: this.gameSettings.uiAreaSize / 2 - this.gameSettings.brickHeight / 2
         },
-        color: "magenta"
+        color: "magenta",
+        saturation: 100
       }));
     }
 
@@ -239,7 +240,8 @@ export default class Breakout extends Game {
         x: this.gameSettings.playArea.center.x,
         y: this.gameSettings.playArea.bottom.y - this.gameSettings.brickHeight
       },
-      color: this.gameSettings.brickColors[this.gameSettings.brickColors.length - 1]
+      color: this.gameSettings.brickColors[this.gameSettings.brickColors.length - 1],
+      gameState: this.gameState
     });
 
     this.createBall({
@@ -330,6 +332,8 @@ export default class Breakout extends Game {
   }
 
   destroyBrick(brick, ball) {
+    ball.setColor(brick.color);
+    ball.renderer.shadowBlur += 1;
     for (const row of this.gameState.bricks) {
       if (row.includes(brick)) {
         _.remove(row, brick);
@@ -342,7 +346,8 @@ export default class Breakout extends Game {
         this.particleEngine.addEffect(new AbsorbEffect({
           gameSettings: this.gameSettings,
           brick: brick,
-          ball: ball
+          ball: ball,
+          paddle: this.gameState.paddle
         }));
         //ball.setColor(brick.color);
       
@@ -384,7 +389,8 @@ export default class Breakout extends Game {
               x: this.gameState.paddle.center.x,
               y: this.gameSettings.playArea.bottom.y - this.gameSettings.brickHeight - this.gameSettings.ballSize
             },
-            speed: this.gameState.balls[0].speed
+            speed: this.gameState.balls[0].speed,
+            saturation: this.gameState.balls[0].saturation
           })
         }
   

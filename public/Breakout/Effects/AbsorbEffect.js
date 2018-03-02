@@ -31,12 +31,17 @@ export default class AbsorbEffect extends Effect {
     this.orbs = [];
     let numOrbs = params.brick.value;
     for (let i = 0; i < numOrbs; i++) {
+      let position = {
+        x: _.random(params.brick.left.x, params.brick.right.x),
+        y: _.random(params.brick.top.y, params.brick.bottom.y)
+      };
       this.orbs.push({
-        position: {
-          x: _.random(params.brick.left.x, params.brick.right.x),
-          y: _.random(params.brick.top.y, params.brick.bottom.y)
-        },
-        direction: Object.assign({}, params.ball.direction),
+        position: position,
+        // direction: Object.assign({}, params.ball.direction),
+        direction: this.normalizeDirection({
+          x: this.paddle.position.x - position.x,
+          y: this.paddle.position.y - position.y
+        }),
         speed: 0,
         acceleration: 0.015,
         radius: 2,
@@ -80,23 +85,36 @@ export default class AbsorbEffect extends Effect {
       orb.position.x += elapsedTime * orb.speed * orb.direction.x;
       orb.position.y += elapsedTime * orb.speed * orb.direction.y;
       orb.speed += (elapsedTime / 50) * orb.acceleration;
+      // let direction = this.normalizeDirection({
+      //   x: this.ball.position.x - orb.position.x,
+      //   y: this.ball.position.y - orb.position.y
+      // });
       let direction = this.normalizeDirection({
-        x: this.ball.position.x - orb.position.x,
-        y: this.ball.position.y - orb.position.y
+        x: this.paddle.center.x - orb.position.x,
+        y: this.paddle.center.y - orb.position.y
       });
       orb.direction = this.normalizeDirection({
         x: orb.direction.x + (direction.x - orb.direction.x) / (Math.min(1, this.currentTime / TURN_TIME)),
         y: orb.direction.y + (direction.y - orb.direction.y) / (Math.min(1, this.currentTime / TURN_TIME))
       });
 
-      if (this.ball.boundingBox.intersects(orb.position)) {
+      if (this.paddle.boundingBox.intersects(orb.position)) {
         // let sound = new Audio("Assets/absorb.wav");
         // sound.play();
-        this.ball.addSpark(orb.color);
+        this.paddle.addSpark(orb.color);
         orb.done = true;
       } else if (orb.position.y > this.gameSettings.playArea.bottom.y + 15) {
         orb.done = true;
       }
+
+      // if (this.ball.boundingBox.intersects(orb.position)) {
+      //   // let sound = new Audio("Assets/absorb.wav");
+      //   // sound.play();
+      //   this.ball.addSpark(orb.color);
+      //   orb.done = true;
+      // } else if (orb.position.y > this.gameSettings.playArea.bottom.y + 15) {
+      //   orb.done = true;
+      // }
     }
     
     _.remove(this.orbs, "done");
