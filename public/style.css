@@ -21,6 +21,10 @@ hr {
   color: white;
 }
 
+.clear {
+  float: right;
+}
+
 .choose-difficulty {
   text-align: center;
 }

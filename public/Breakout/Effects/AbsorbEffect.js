@@ -1,5 +1,7 @@
 import Effect from "../../Engine/Effects/Effect.js"
 
+const TURN_TIME = 3000;
+
 export default class AbsorbEffect extends Effect {
   constructor(params) {
     super(params);
@@ -44,7 +46,6 @@ export default class AbsorbEffect extends Effect {
       context.beginPath();
       context.arc(orb.position.x, orb.position.y, orb.radius, 0, 2 * Math.PI);
       context.closePath();
-  
       context.shadowColor = orb.fillStyle;
       context.shadowBlur = 35;
       context.fillStyle = orb.fillStyle;
@@ -67,9 +68,13 @@ export default class AbsorbEffect extends Effect {
       orb.position.x += elapsedTime * orb.speed * orb.direction.x;
       orb.position.y += elapsedTime * orb.speed * orb.direction.y;
       orb.speed += (elapsedTime / 50) * orb.acceleration;
-      orb.direction = this.normalizeDirection({
+      let direction = this.normalizeDirection({
         x: this.ball.position.x - orb.position.x,
         y: this.ball.position.y - orb.position.y
+      });
+      orb.direction = this.normalizeDirection({
+        x: orb.direction.x + (direction.x - orb.direction.x) / (Math.min(1, this.currentTime / TURN_TIME)),
+        y: orb.direction.y + (direction.y - orb.direction.y) / (Math.min(1, this.currentTime / TURN_TIME))
       });
 
       if (this.ball.boundingBox.intersects(orb.position)) {

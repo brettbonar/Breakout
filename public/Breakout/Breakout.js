@@ -86,7 +86,6 @@ export default class Breakout extends Game {
       newBallInterval: 100,
       comboThreshold: 30,
       numPaddles: 3,
-      maxCombo: 0,
       // Value by row
       brickValues: {
         0: 5,
@@ -106,6 +105,7 @@ export default class Breakout extends Game {
       balls: [],
       scores: [],
       combo: 0,
+      maxCombo: 0,
       score: 0,
       countdown: 3000,
       bricksDestroyed: 0,

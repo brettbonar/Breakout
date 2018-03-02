@@ -182,7 +182,7 @@ export default class Game {
     this.transitionState(STATE.PLAYING);
   }
 
-  onStateChange(state, cb) {
+  _onStateChange(state, cb) {
     let cbs = this.transitionStateCbs[state];
     if (!cbs) {
       this.transitionStateCbs[state] = [cb];
@@ -191,10 +191,20 @@ export default class Game {
     }
   }
 
+  onStateChange(state, cb) {
+    if (_.isArray(state)) {
+      for (const s of state) {
+        this._onStateChange(s, cb);
+      }
+    } else {
+      this._onStateChange(state, cb);
+    }
+  }
+
   transitionState(state) {
     this.state = state;
     for (const cb of this.transitionStateCbs[state]) {
-      cb(state);
+      cb(this);
     }
   }
 }
