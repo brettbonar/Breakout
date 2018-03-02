@@ -40,7 +40,7 @@ export default class BreakoutController extends GameController {
   clearScores() {
     this.highScores.length = 0;
     localStorage.setItem(HIGH_SCORE_STORAGE, JSON.stringify(this.highScores));
-    this.menus.showScores(getHighScores())
+    this.menus.showScores(this.getHighScores())
   }
 
   newGame() {

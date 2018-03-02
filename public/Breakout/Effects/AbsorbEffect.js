@@ -2,12 +2,29 @@ import Effect from "../../Engine/Effects/Effect.js"
 
 const TURN_TIME = 3000;
 
+const IMAGES = {
+  lawnGreen: new Image(),
+  aqua: new Image(),
+  yellow: new Image(),
+  orange: new Image()
+};
+IMAGES.lawnGreen.src = "../../Assets/lawnGreen-star.png";
+IMAGES.aqua.src = "../../Assets/aqua-star.png";
+IMAGES.yellow.src = "../../Assets/yellow-star.png";
+IMAGES.orange.src = "../../Assets/orange-star.png";
+
 export default class AbsorbEffect extends Effect {
   constructor(params) {
     super(params);
     this.init(params);
     // let sound = new Audio("Assets/Explosion58.wav");
     // sound.play();
+  }
+
+  static get IMAGES() { return IMAGES; }
+
+  static drawOrb(context, orb) {
+    context.drawImage(orb.image, orb.position.x - 10, orb.position.y - 10, 20, 20);
   }
 
   init(params) {
@@ -23,7 +40,10 @@ export default class AbsorbEffect extends Effect {
         speed: 0,
         acceleration: 0.015,
         radius: 2,
-        fillStyle: params.brick.color
+        color: params.brick.color,
+        image: IMAGES[params.brick.color],
+        rotation: 0,
+        spin: 0.5
       });
     }
   }
@@ -43,15 +63,7 @@ export default class AbsorbEffect extends Effect {
     context.save();
 
     for (const orb of this.orbs) {
-      context.beginPath();
-      context.arc(orb.position.x, orb.position.y, orb.radius, 0, 2 * Math.PI);
-      context.closePath();
-      context.shadowColor = orb.fillStyle;
-      context.shadowBlur = 35;
-      context.fillStyle = orb.fillStyle;
-      context.fill();
-      context.strokeStyle = orb.strokeStyle;
-      context.stroke();
+      AbsorbEffect.drawOrb(context, orb);
     }
 
     context.restore();
@@ -80,7 +92,7 @@ export default class AbsorbEffect extends Effect {
       if (this.ball.boundingBox.intersects(orb.position)) {
         // let sound = new Audio("Assets/absorb.wav");
         // sound.play();
-        this.ball.addSpark(orb.fillStyle);
+        this.ball.addSpark(orb.color);
         orb.done = true;
       } else if (orb.position.y > this.gameSettings.playArea.bottom.y + 15) {
         orb.done = true;

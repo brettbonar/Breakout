@@ -1,5 +1,5 @@
 <gui-menu gui-start class="menu" id="MAIN" gui-on-show="returnToMain()">
-  <h1 class="title">BreakOut</h1>
+  <h1 class="title">Light Thief</h1>
   <div class="sub-menu controls">
     <button class="control" gui-click="newGame()">New Game</button>
     <button class="control" gui-click="menus.transition('HIGH_SCORES')">High Scores</button>
@@ -8,7 +8,7 @@
 </gui-menu>
 
 <gui-menu class="menu" id="HIGH_SCORES" gui-on-show="menus.showScores(getHighScores())">
-  <h1 class="title">BreakOut</h1>
+  <h1 class="title">Light Thief</h1>
   <div class="sub-menu">
     <table class="high-scores-list" id="high-scores-list">
       <tr>
@@ -24,7 +24,7 @@
 </gui-menu>
 
 <gui-menu class="menu" id="CREDITS">
-  <h1 class="title">BreakOut</h1>
+  <h1 class="title">Light Thief</h1>
   <div class="sub-menu credits">
     <div>Created by Brett Bonar for CS5460 taught by Dean Mathias</div>
     <div>Voronoi Diagram implementation: https://github.com/gorhill/Javascript-Voronoi</div>

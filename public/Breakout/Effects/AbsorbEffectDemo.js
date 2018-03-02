@@ -1,4 +1,5 @@
 import Effect from "../../Engine/Effects/Effect.js"
+import AbsorbEffect from "./AbsorbEffect.js"
 
 export default class AbsorbEffectDemo extends Effect {
   constructor(params) {
@@ -9,14 +10,16 @@ export default class AbsorbEffectDemo extends Effect {
   }
 
   getRandomDirection(orb) {
-    orb.direction = this.normalizeDirection({
+    if (!orb.direction) {
+      orb.direction = this.normalizeDirection({
+        x: _.random(-1, 1, true),
+        y: _.random(-1, 1, true)
+      });
+    }
+    orb.targetDirection = this.normalizeDirection({
       x: _.random(-1, 1, true),
       y: _.random(-1, 1, true)
     });
-    // orb.directionChange = {
-    //   x: _.random(-1, 1, true),
-    //   y: _.random(-1, 1, true)
-    // };
     orb.directionChangeTime = _.random(500, 3000);
   }
 
@@ -32,7 +35,7 @@ export default class AbsorbEffectDemo extends Effect {
         speed: 0.3,
         acceleration: 0,
         radius: 2,
-        fillStyle: _.sample(params.brickColors),
+        image: AbsorbEffect.IMAGES[_.sample(params.brickColors)],
         currentTime: 0
       };
       this.getRandomDirection(orb);
@@ -55,16 +58,7 @@ export default class AbsorbEffectDemo extends Effect {
     context.save();
 
     for (const orb of this.orbs) {
-      context.beginPath();
-      context.arc(orb.position.x, orb.position.y, orb.radius, 0, 2 * Math.PI);
-      context.closePath();
-  
-      context.shadowColor = orb.fillStyle;
-      context.shadowBlur = 35;
-      context.fillStyle = orb.fillStyle;
-      context.fill();
-      context.strokeStyle = orb.strokeStyle;
-      context.stroke();
+      AbsorbEffect.drawOrb(context, orb);
     }
 
     context.restore();
@@ -91,6 +85,11 @@ export default class AbsorbEffectDemo extends Effect {
       } else if (orb.position.y > this.canvas.height + 10) {
         orb.position.y = 0;
       }
+
+      orb.direction = this.normalizeDirection({
+        x: orb.direction.x + (orb.targetDirection.x - orb.direction.x) * elapsedTime / 1000,
+        y: orb.direction.y + (orb.targetDirection.y - orb.direction.y) * elapsedTime / 1000
+      });
 
       orb.currentTime += elapsedTime;
       if (orb.currentTime >= orb.directionChangeTime) {

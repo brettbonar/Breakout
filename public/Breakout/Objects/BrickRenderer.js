@@ -14,10 +14,20 @@ export default class BrickRenderer extends Renderer {
       context.translate(-(object.position.x + object.width / 2), -(object.position.y + object.height / 2));        
     }
 
+    context.lineWidth = this.lineWidth;
+
+    if (this.fillStyle) {
+      context.fillStyle = this.fillStyle;
+      context.fillRect(object.position.x, object.position.y, object.width, object.height);
+    }
+
+    if (this.strokeStyle) {
+      context.strokeStyle = this.strokeStyle;
+      context.strokeRect(object.position.x, object.position.y, object.width, object.height);
+    }
+
     // Draw shadow
-    //context.drawImage(this.imageShadow, object.position.x - 15, object.position.y - 15, object.width + 30, object.height + 30);
-    // Draw brick
-    context.drawImage(this.image, object.position.x, object.position.y, object.width, object.height);
+    context.drawImage(this.imageShadow, object.position.x - 10, object.position.y - 10, object.width + 20, object.height + 20);
     
     context.restore();    
   }

@@ -21,10 +21,10 @@ let imageShadows = {
   orange: new Image(),
   yellow: new Image()
 };
-imageShadows.lawnGreen.src = "../../Assets/green-shadow.png";
-imageShadows.aqua.src = "../../Assets/green-shadow.png";
-imageShadows.orange.src = "../../Assets/green-shadow.png";
-imageShadows.yellow.src = "../../Assets/green-shadow.png";
+imageShadows.lawnGreen.src = "../../Assets/lawnGreen-shadow.png";
+imageShadows.aqua.src = "../../Assets/aqua-shadow.png";
+imageShadows.orange.src = "../../Assets/orange-shadow.png";
+imageShadows.yellow.src = "../../Assets/yellow-shadow.png";
 
 export default class Brick extends GameObject {
   constructor(params) {
@@ -33,17 +33,19 @@ export default class Brick extends GameObject {
         width: params.gameSettings.brickWidth,
         height: params.gameSettings.brickHeight
       },
-      // renderer: new BrickRenderer({
-      //   image: images[params.color],
-      //   imageShadow: imageShadows[params.color]
-      // }),
-      renderer: new RectangleRenderer({
+      renderer: new BrickRenderer({
         strokeStyle: params.color,
         fillStyle: params.color,
-        // shadowColor: params.color,
-        // shadowBlur: params.gameSettings.brickShadowBlur,
-        lineWidth: params.gameSettings.brickLineWidth
+        lineWidth: params.gameSettings.brickLineWidth,
+        imageShadow: imageShadows[params.color]
       }),
+      // renderer: new RectangleRenderer({
+      //   strokeStyle: params.color,
+      //   fillStyle: params.color,
+      //   lineWidth: params.gameSettings.brickLineWidth
+      //   // shadowColor: params.color,
+      //   // shadowBlur: params.gameSettings.brickShadowBlur,
+      // }),
       position: params.position || {
         x: params.gameSettings.playArea.top.x + params.column * 
           (params.gameSettings.brickWidth + params.gameSettings.brickLineWidth * 2) + params.gameSettings.brickLineWidth,
