@@ -446,7 +446,7 @@ export default class Breakout extends Game {
       canvas: this.canvas,
       context: this.context,
       brickColors: this.gameSettings.brickColors,
-      numOrbs: this.gameState.score / 10
+      numOrbs: this.gameState.score
     }));
     this.particleEngine.addEffect(new GameOverEffect({
       canvas: this.canvas,

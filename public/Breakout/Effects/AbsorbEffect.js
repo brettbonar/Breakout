@@ -24,7 +24,7 @@ export default class AbsorbEffect extends Effect {
   static get IMAGES() { return IMAGES; }
 
   static drawOrb(context, orb) {
-    context.drawImage(orb.image, orb.position.x - 10, orb.position.y - 10, 20, 20);
+    context.drawImage(orb.image, orb.position.x - 13, orb.position.y - 13, 26, 26);
   }
 
   init(params) {
