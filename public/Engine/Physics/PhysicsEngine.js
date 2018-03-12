@@ -6,6 +6,28 @@ export default class PhysicsEngine {
     Object.assign(this, params);
   }
 
+  sweepTest(boxA1, boxA2, boxB1, boxB2) {
+    let vAx = boxA2.box.ul.x - boxA1.box.ul.x;
+    let vAy = boxA2.box.ul.y - boxA1.box.ul.y;
+    let vBx = boxB2.box.ul.x - boxB1.box.ul.x;
+    let vBy = boxB2.box.ul.y - boxB1.box.ul.y;
+    let vx = vBx - vAx;
+    let vy = vBy - vAy;
+
+    let ux = (boxA1.lr.x - boxB1.ul.x) / vx;
+    let uy = (boxA1.lr.y - boxB1.ul.y) / vy;
+
+    let u0 = Math.max(ux, uy);
+    let u1 = Math.min(ux, uy);
+
+    if (u0 <= u1) {
+      return {
+        
+      };
+    }
+    return false;
+  }
+
   getIntersections(vector, target) {
     return _.filter(target.boundingBox.lines, (line) => vector.some((vec) => vec.intersects(line)));
   }
