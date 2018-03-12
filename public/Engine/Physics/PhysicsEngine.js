@@ -20,12 +20,29 @@ export default class PhysicsEngine {
     let u0 = Math.max(ux, uy);
     let u1 = Math.min(ux, uy);
 
-    if (u0 <= u1) {
-      return {
-        
-      };
+    if (u0 > u1) {
+      return false;
     }
-    return false;
+
+    let side;
+    if (ux < uy) {
+      if (boxB2.x < boxB1.x) {
+        side = "right";
+      } else {
+        side = "left";
+      }
+    } else {
+      if (boxB2.y < boxB2.y) {
+        side = "bottom";
+      } else {
+        side = "top";
+      }
+    }
+
+    return {
+      time: u1,
+      side: side
+    };
   }
 
   getIntersections(vector, target) {
@@ -36,42 +53,45 @@ export default class PhysicsEngine {
     // Handle paddle collision
     let vector = obj.vector;
     let collisions = [];
-    for (const target of objects) {
-      if (target === obj) continue;
-      
-      let intersections = this.getIntersections(vector, target);
-      if (intersections.length > 0) {
-        // TODO: if target movement is also normal then move target
-        if (target.physics.surfaceType === SURFACE_TYPE.REFLECTIVE) {
-          // TODO: handle reflection in directions other than Y
-          obj.direction.y = -obj.direction.y;
-          obj.position.y = target.position.y - target.height - obj.gameSettings.brickLineWidth;
-          target.color = obj.color;
-    
-          obj.direction.x = (obj.position.x - (target.position.x + target.width / 2)) / (target.width / 2);
-        } else if (target.physics.surfaceType === SURFACE_TYPE.DEFAULT) {
-          // TODO: figure out which of intersections is best match
-          let targetSurface = intersections[0];
-          if (targetSurface[0].y === targetSurface[1].y) { // horizontal surface
-            obj.position.y = targetSurface[0].y + (obj.direction.y > 0 ? -obj.height / 2 : obj.height / 2);
-            obj.direction.y = -obj.direction.y;
-          } else if (targetSurface[0].x === targetSurface[1].x) { // vertical surface
-            obj.position.x = targetSurface[0].x + (obj.direction.x > 0 ? -obj.width / 2 : obj.width / 2);
-            obj.direction.x = -obj.direction.x;
-          } 
-          // TODO: diagonal surface
-        }
-
-        collisions.push({
-          source: obj,
-          target: target
-        });
-
-        obj.normalizeDirection();
-
-        // TODO: don't return here to allow multiple collisions
-        return collisions;
+    let collisions = _.map(objects, (target) => {
+      if (target === obj) return false;
+      return {
+        target: target,
+        collision: this.sweepTest(obj.boundingBox, obj.prevBounds, target.boundingBox, target.prevBounds)
       }
+    }).filter((target) => target.collision);
+
+    if (collisions.length > 0) {
+      let target = _.minBy(collisions, (collision) => collision.time);
+      if (target.physics.surfaceType === SURFACE_TYPE.REFLECTIVE) {
+        // TODO: handle reflection in directions other than Y
+        obj.direction.y = -obj.direction.y;
+        obj.position.y = target.position.y - target.height - obj.gameSettings.brickLineWidth;
+        target.color = obj.color;
+  
+        obj.direction.x = (obj.position.x - (target.position.x + target.width / 2)) / (target.width / 2);
+      } else if (target.physics.surfaceType === SURFACE_TYPE.DEFAULT) {
+        // TODO: figure out which of intersections is best match
+        let targetSurface = intersections[0];
+        if (targetSurface[0].y === targetSurface[1].y) { // horizontal surface
+          obj.position.y = targetSurface[0].y + (obj.direction.y > 0 ? -obj.height / 2 : obj.height / 2);
+          obj.direction.y = -obj.direction.y;
+        } else if (targetSurface[0].x === targetSurface[1].x) { // vertical surface
+          obj.position.x = targetSurface[0].x + (obj.direction.x > 0 ? -obj.width / 2 : obj.width / 2);
+          obj.direction.x = -obj.direction.x;
+        } 
+        // TODO: diagonal surface
+      }
+
+      collisions.push({
+        source: obj,
+        target: target
+      });
+
+      obj.normalizeDirection();
+
+      // TODO: don't return here to allow multiple collisions
+      return collisions;
     }
 
     return collisions;
