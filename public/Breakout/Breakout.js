@@ -532,6 +532,7 @@ export default class Breakout extends Game {
     } else if (this.gameState.paddle.position.x < 0) {
       this.gameState.paddle.position.x = 0;
     }
+    this.gameState.paddle.lastPosition = this.gameState.paddle.position;
     //this.gameState.paddle.position.x =  Math.min(Math.max(x, 0), this.gameSettings.playArea.width - this.gameState.paddle.width);
   }
 

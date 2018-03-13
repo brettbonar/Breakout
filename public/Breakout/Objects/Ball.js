@@ -15,7 +15,7 @@ export default class Ball extends GameObject {
       shadowBlur: 0
     });
     _.defaults(this, {
-      saturation: 10
+      saturation: 0
     });
 
     this.normalizeDirection();

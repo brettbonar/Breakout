@@ -159,12 +159,13 @@ export default class GameObject {
   }
 
   get vector() {
-    let mid = new Vector([this.lastPosition, this.position]);
-    let radius = this.radius;
-    mid.extend(radius);
-    let left = mid.getParallelLine(radius);
-    let right = mid.getParallelLine(-radius);
-    return [mid, left, right];
+    // let mid = new Vector([this.lastPosition, this.position]);
+    // let radius = this.radius;
+    // mid = mid.extend(radius);
+    // let left = mid.getParallelLine(radius);
+    // let right = mid.getParallelLine(-radius);
+    // return [mid, left, right];
+    return [];
   }
 
   get sweepBox() {

@@ -13,20 +13,15 @@ export default class Bounds {
       this.constructFromRectangle(params);
     } else if (params.boundsType === TYPE.LINE) {
       this.constructFromLine(params);
+    } else if (params.ul) {
+      this.constructFromBox(params);
     }
   }
 
   static get TYPE() { return TYPE; }
 
-  extend(box) {
-    // TODO: if box instanceof BoundingBox
-
-    this.box = {
-      ul: { x: Math.min(this.box.ul.x, box.box.ul.x), y: Math.min(this.box.ul.y, box.box.ul.y) },
-      ur: { x: Math.max(this.box.ur.x, box.box.ur.x), y: Math.min(this.box.ur.y, box.box.ur.y) },
-      lr: { x: Math.max(this.box.lr.x, box.box.lr.x), y: Math.max(this.box.lr.y, box.box.lr.y) },
-      ll: { x: Math.min(this.box.ll.x, box.box.ll.x), y: Math.max(this.box.ll.y, box.box.ll.y) }
-    };
+  constructFromBox(params) {
+    this.box = params;
 
     this.lines = {
       top: [this.box.ul, this.box.ur],
@@ -34,10 +29,26 @@ export default class Bounds {
       right: [this.box.ur, this.box.lr],
       left: [this.box.ll, this.box.ul]
     };
+  }
 
+  extend(box) {
+    // TODO: if box instanceof BoundingBox
+
+    return new Bounds({
+      ul: { x: Math.min(this.box.ul.x, box.box.ul.x), y: Math.min(this.box.ul.y, box.box.ul.y) },
+      ur: { x: Math.max(this.box.ur.x, box.box.ur.x), y: Math.min(this.box.ur.y, box.box.ur.y) },
+      lr: { x: Math.max(this.box.lr.x, box.box.lr.x), y: Math.max(this.box.lr.y, box.box.lr.y) },
+      ll: { x: Math.min(this.box.ll.x, box.box.ll.x), y: Math.max(this.box.ll.y, box.box.ll.y) }
+    });
   }
 
   constructFromLine(params) {
+    this.box = {
+      ul: { x: Math.min(params.dimensions.line[0].x, params.dimensions.line[1].x), y: Math.min(params.dimensions.line[0].y, params.dimensions.line[1].y) },
+      ur: { x: Math.max(params.dimensions.line[0].x, params.dimensions.line[1].x), y: Math.min(params.dimensions.line[0].y, params.dimensions.line[1].y) },
+      lr: { x: Math.max(params.dimensions.line[0].x, params.dimensions.line[1].x), y: Math.max(params.dimensions.line[0].y, params.dimensions.line[1].y) },
+      ll: { x: Math.min(params.dimensions.line[0].x, params.dimensions.line[1].x), y: Math.max(params.dimensions.line[0].y, params.dimensions.line[1].y) }
+    };
     this.lines = [params.dimensions.line];
   }
 
@@ -96,6 +107,25 @@ export default class Bounds {
       return this.intersects(target) ? [target] : [];
     }
     return [];
+  }
+
+  get ul() { return this.box.ul; }
+  get ur() { return this.box.ur; }
+  get lr() { return this.box.lr; }
+  get ll() { return this.box.ll; }
+
+  get max() {
+    return {
+      x: this.box.lr.x,
+      y: this.box.lr.y
+    };
+  }
+
+  get min() {
+    return {
+      x: this.box.ul.x,
+      y: this.box.ul.y
+    };
   }
 
   intersects(target) {
