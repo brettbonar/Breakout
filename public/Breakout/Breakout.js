@@ -17,6 +17,11 @@ import GameOverEffect from "./Effects/GameOverEffect.js";
 import AbsorbEffect from "./Effects/AbsorbEffect.js";
 import AbsorbEffectDemo from "./Effects/AbsorbEffectDemo.js";
 
+const EVENT = {
+  MOVE_LEFT: "moveLeft",
+  MOVE_RIGHT: "moveRight"
+};
+
 export default class Breakout extends Game {
   constructor(params) {
     super(Object.assign(params, { requestPointerLock: true }));
@@ -29,7 +34,10 @@ export default class Breakout extends Game {
     });
     this.menus = params.menus;
 
-    let scale = this.canvas.width / 1000; 
+    this.background = new Image();
+    this.background.src = "./Assets/background.jpg";
+
+    let scale = this.canvas.width / 1000;
     let bottomBuffer = 10 * scale;
     let uiAreaSize = 30 * scale;
     let playArea = {
@@ -79,13 +87,13 @@ export default class Breakout extends Game {
       brickColors: ["lawnGreen", "aqua", "orange", "yellow"],
       brickLineWidth: brickLineWidth,
       brickShadowBlur: 15 * scale,
-      ballSpeed: 0.25 * scale,
+      ballSpeed: .25 * scale,
       ballSpeedIncrease: 0.10 * scale,
       ballSpeedIntervals: [4, 12, 36, 62],
       ballSize: 6 * scale,
       newBallInterval: 100,
       comboThreshold: 30,
-      numPaddles: 3,
+      numPaddles: 2,
       // Value by row
       brickValues: {
         0: 5,
@@ -108,6 +116,9 @@ export default class Breakout extends Game {
       maxCombo: 0,
       score: 0,
       countdown: 3000,
+      movement: 0,
+      movingRight: false,
+      movingLeft: false,
       bricksDestroyed: 0,
       paddleBricksDestroyed: 0,
       brokeThrough: false,
@@ -125,12 +136,16 @@ export default class Breakout extends Game {
     });
 
     this.keyBindings[KEY_CODE.ESCAPE] = Game.EVENT.PAUSE;
+    this.keyBindings[KEY_CODE.RIGHT] = EVENT.MOVE_RIGHT;
+    this.keyBindings[KEY_CODE.LEFT] = EVENT.MOVE_LEFT;
 
     // this.eventHandlers = {};
     // this.eventHandlers[EVENT.PAUSE] = () => {
     //   this.pause();
     // };
     this.addEventHandler(Game.EVENT.PAUSE, () => this.pause());
+    this.addEventHandler(EVENT.MOVE_RIGHT, (event) => this.moveRight(event));
+    this.addEventHandler(EVENT.MOVE_LEFT, (event) => this.moveLeft(event));
 
     this.stateFunctions[Game.STATE.PLAYING].update = (elapsedTime) => this._update(elapsedTime);
     this.stateFunctions[Game.STATE.PLAYING].render = (elapsedTime) => this._render(elapsedTime);
@@ -145,6 +160,25 @@ export default class Breakout extends Game {
     this.stateFunctions[Game.STATE.GAME_OVER].render = (elapsedTime) => this.renderGameOver(elapsedTime);
     this.stateFunctions[Game.STATE.INITIALIZING].update = _.noop;//(elapsedTime) => this._update(elapsedTime);
     this.stateFunctions[Game.STATE.INITIALIZING].render = _.noop;//(elapsedTime) => this._render(elapsedTime);
+  }
+
+  moveRight(event) {
+    if (event.release) {
+      this.gameState.movement = this.gameState.movingLeft ? -5 : 0;
+      this.gameState.movingRight = false;
+    } else {
+      this.gameState.movement = 5;
+      this.gameState.movingRight = true;
+    }
+  }
+  moveLeft(event) {
+    if (event.release) {
+      this.gameState.movement = this.gameState.movingRight ? 5 : 0;
+      this.gameState.movingLeft = false;
+    } else {
+      this.gameState.movement = -5;
+      this.gameState.movingLeft = true;
+    }
   }
 
   createBall(params) {
@@ -390,7 +424,7 @@ export default class Breakout extends Game {
               y: this.gameSettings.playArea.bottom.y - this.gameSettings.brickHeight - this.gameSettings.ballSize
             },
             speed: this.gameState.balls[0].speed,
-            saturation: this.gameState.balls[0].saturation
+            saturation: this.gameState.paddle.saturation
           })
         }
   
@@ -481,7 +515,8 @@ export default class Breakout extends Game {
           position: {
             x: this.gameState.paddle.center.x,
             y: this.gameSettings.playArea.bottom.y - this.gameSettings.brickHeight - this.gameSettings.ballSize
-          }
+          },
+          saturation: this.gameState.paddle.saturation
         });
       }
     }
@@ -523,17 +558,23 @@ export default class Breakout extends Game {
     }
   }
 
-  handleMouseMove(event) {
+  movePaddle(distance) {
     // TODO: put in paddle update function
-    let x = this.gameState.paddle.position.x + event.movementX * this.gameSettings.scale;
-    this.gameState.paddle.position.x = x;
-    if (this.gameState.paddle.position.x + this.gameState.paddle.width > this.gameSettings.playArea.width) {
-      this.gameState.paddle.position.x = this.gameSettings.playArea.width - this.gameState.paddle.width;
-    } else if (this.gameState.paddle.position.x < 0) {
-      this.gameState.paddle.position.x = 0;
+    if (distance) {
+      let x = this.gameState.paddle.position.x + distance * this.gameSettings.scale;
+      this.gameState.paddle.position.x = x;
+      if (this.gameState.paddle.position.x + this.gameState.paddle.width > this.gameSettings.playArea.width) {
+        this.gameState.paddle.position.x = this.gameSettings.playArea.width - this.gameState.paddle.width;
+      } else if (this.gameState.paddle.position.x < 0) {
+        this.gameState.paddle.position.x = 0;
+      }
+      this.gameState.paddle.lastPosition = this.gameState.paddle.position;
+      //this.gameState.paddle.position.x =  Math.min(Math.max(x, 0), this.gameSettings.playArea.width - this.gameState.paddle.width);
     }
-    this.gameState.paddle.lastPosition = this.gameState.paddle.position;
-    //this.gameState.paddle.position.x =  Math.min(Math.max(x, 0), this.gameSettings.playArea.width - this.gameState.paddle.width);
+  }
+
+  handleMouseMove(event) {
+    this.movePaddle(event.movementX);
   }
 
   getUIRenderObjects() {
@@ -594,6 +635,7 @@ export default class Breakout extends Game {
   }
   
   _update(elapsedTime) {
+    this.movePaddle(this.gameState.movement * this.gameSettings.scale);
     this.gameState.scores = this.gameState.scores.filter((score) => !score.done);
     for (const score of this.gameState.scores) {
       score.update(elapsedTime);
@@ -619,9 +661,13 @@ export default class Breakout extends Game {
     this.context.save();
 
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.context.fillStyle = "black";
+
+    if (this.background.complete) {
+      this.context.drawImage(this.background, 0, 0, this.canvas.width, this.canvas.height);
+    }
+    // this.context.fillStyle = "black";
+    // this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.strokeStyle = "magenta";
-    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.strokeRect(this.gameSettings.playArea.top.x, this.gameSettings.playArea.top.y,
       this.gameSettings.playArea.width, this.gameSettings.playArea.height);
       

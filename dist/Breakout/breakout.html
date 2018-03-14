@@ -1,0 +1,48 @@
+<gui-menu gui-start class="menu" id="MAIN" gui-on-show="returnToMain()">
+  <h1 class="title">Breakout</h1>
+  <div class="sub-menu controls">
+    <button class="control" gui-click="newGame()">New Game</button>
+    <button class="control" gui-click="menus.transition('HIGH_SCORES')">High Scores</button>
+    <button class="control" gui-click="menus.transition('CREDITS')">Credits</button>
+  </div>
+</gui-menu>
+
+<gui-menu class="menu" id="HIGH_SCORES" gui-on-show="menus.showScores(getHighScores())">
+  <h1 class="title">Breakout</h1>
+  <div class="sub-menu">
+    <table class="high-scores-list" id="high-scores-list">
+      <tr>
+        <th>Score</th>
+        <th>Bricks Destroyed</th>
+        <th>Max Combo</th>
+      </tr>
+    </table>
+    <hr />
+    <button class="control" gui-click="menus.transition('MAIN')">Back</button>
+    <button class="control clear" gui-click="clearScores()">Clear Scores</button>
+  </div>
+</gui-menu>
+
+<gui-menu class="menu" id="CREDITS">
+  <h1 class="title">Breakout</h1>
+  <div class="sub-menu credits">
+    <div>Created by Brett Bonar for CS5460 taught by Dean Mathias</div>
+    <div>Voronoi Diagram implementation: https://github.com/gorhill/Javascript-Voronoi</div>
+    <hr />
+    <button class="control" gui-click="menus.transition('MAIN')">Back</button>
+  </div>
+</gui-menu>
+
+<gui-menu class="menu" id="PAUSE">
+  <div id="pause-menu" class="controls pause-menu sub-menu ">
+    <button class="control" gui-click="game.resume()">Resume</button>
+    <button class="control" gui-click="game.quit()">Quit</button>
+  </div>
+</gui-menu>
+
+<gui-menu class="menu retry-menu" id="RETRY">
+  <div id="pause-menu" class="controls retry-menu sub-menu ">
+    <button class="control" gui-click="newGame()">Retry</button>
+    <button class="control" gui-click="game.quit()">Quit</button>
+  </div>
+</gui-menu>

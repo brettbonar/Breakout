@@ -4,13 +4,28 @@
   "description": "",
   "main": "app.js",
   "dependencies": {
+    "babel-polyfill": "^6.26.0",
     "express": "^4.16.2",
     "jquery": "^3.3.1",
     "keycode-js": "^1.0.0",
-    "lodash": "^4.17.5"
+    "lodash": "^4.17.5",
+    "voronoi": "^1.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-transform-es2015-modules-amd": "^6.24.1",
+    "babel-plugin-transform-es2015-modules-umd": "^6.24.1",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.12"
+  },
   "scripts": {
+    "start": "node app.js",
+    "build": "webpack",
+    "build2": "babel public -d dist --presets=es2015",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

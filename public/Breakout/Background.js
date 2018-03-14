@@ -12,6 +12,13 @@ export default class Background {
     this.context = this.canvas.getContext("2d");
 
     this.gameSettings = gameSettings;
+
+    this.image = new Image();
+    // this.image.src = "./Assets/colorful_16-wallpaper-1920x1080.jpg";
+    //this.image.src = "./Assets/starry_sky_background-wallpaper-2560x1440.jpg";
+    this.image.src = "./Assets/dark_circle_gray_black_9834_1600x1200.jpg";
+    
+    this.image.onload = () => this.render();
   }
 
   update(elapsedTime) {
@@ -20,12 +27,14 @@ export default class Background {
   render(elapsedTime) {
     this.context.save();
 
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.context.fillStyle = "black";
-    this.context.strokeStyle = "magenta";
-    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.context.strokeRect(this.gameSettings.playArea.top.x, this.gameSettings.playArea.top.y,
-      this.gameSettings.playArea.width, this.gameSettings.playArea.height);
+    this.context.drawImage(this.image, 0, 0, this.canvas.width, this.canvas.height);
+
+    // this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    // this.context.fillStyle = "black";
+    // this.context.strokeStyle = "magenta";
+    // this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    // this.context.strokeRect(this.gameSettings.playArea.top.x, this.gameSettings.playArea.top.y,
+    //   this.gameSettings.playArea.width, this.gameSettings.playArea.height);
 
     this.context.restore();
   }

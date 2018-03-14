@@ -1,6 +1,0 @@
-
-
-
-function shatterRectangle()
-
-export { shatterRectangle }

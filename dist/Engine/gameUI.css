@@ -1,0 +1,7 @@
+gui-menu {
+  display: none;
+}
+
+gui-menu[gui-start] {
+  display: block;
+}

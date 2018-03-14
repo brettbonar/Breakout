@@ -43,8 +43,11 @@ export default class Game {
     this.mouseMoveListener = (event) => {
       this.handleMouseMoveImpl(event);
     };
-    this.keyEventListener = (event) => {
+    this.keyDownListener = (event) => {
       this.handleKeyEvent(event);
+    };
+    this.keyUpListener = (event) => {
+      this.handleKeyEvent(event, true);
     };
     this.mouseDownListener = (event) => {
       this.handleMouseDownImpl(event);
@@ -90,7 +93,7 @@ export default class Game {
         document.mozPointerLockElement === this.canvas) {
       this.canvas.addEventListener("mousemove", this.mouseMoveListener);
     } else {
-      this.callEvent(EVENT.PAUSE);
+      this.callEvent({ event: EVENT.PAUSE });
       this.canvas.removeEventListener("mousemove", this.mouseMoveListener);
     }
   }
@@ -112,7 +115,7 @@ export default class Game {
   }
 
   callEvent(event) {
-    let handlers = this.eventHandlers[event];
+    let handlers = this.eventHandlers[event.event];
     if (handlers) {
       for (const handler of handlers) {
         handler(event);
@@ -120,10 +123,14 @@ export default class Game {
     }
   }
 
-  handleKeyEvent(keyEvent) {
-    let event = this.keyBindings[keyEvent.keyCode];
+  handleKeyEvent(inputEvent, keyUp) {
+    let event = this.keyBindings[inputEvent.keyCode];
     if (event) {
-      this.keyEvents.push(event);
+      this.inputEvents.push({
+        event: event,
+        inputEvent: inputEvent,
+        release: keyUp
+      });
     }
   }
 
@@ -155,7 +162,8 @@ export default class Game {
 
   quit() {
     this.canvas.removeEventListener("mousemove", this.mouseMoveListener);
-    this.canvas.removeEventListener("keyup", this.keyEventListener);
+    document.removeEventListener("keydown", this.keyDownListener);
+    document.removeEventListener("keyup", this.keyUpListener);
     this.canvas.removeEventListener("mousedown", this.mouseDownListener);
     if (this._settings.requestPointerLock) {
       document.removeEventListener("pointerlockchange", this.pointerLockListener, false);
@@ -174,7 +182,8 @@ export default class Game {
     } else {
       this.canvas.addEventListener("mousemove", this.mouseMoveListener);
     }
-    this.canvas.addEventListener("keyup", this.keyEventListener);
+    document.addEventListener("keydown", this.keyDownListener);
+    document.addEventListener("keyup", this.keyUpListener);
     this.canvas.addEventListener("mousedown", this.mouseDownListener);
 
 
